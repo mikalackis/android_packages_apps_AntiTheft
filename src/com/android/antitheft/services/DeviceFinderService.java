@@ -37,6 +37,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
+import android.widget.Toast;
 
 public class DeviceFinderService extends Service implements LocationListener,
         GooglePlayServicesClient.ConnectionCallbacks,  GooglePlayServicesClient.OnConnectionFailedListener{
@@ -127,9 +128,13 @@ public class DeviceFinderService extends Service implements LocationListener,
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i(TAG,"onDestroy");
         if (sWakeLock != null) {
+        	Log.i(TAG,"sWakeLock existing");
+        	Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
             sWakeLock.release();
         }
+        Log.i(TAG,"end onDestroy");
         mIsRunning = false;
     }
 
@@ -142,6 +147,9 @@ public class DeviceFinderService extends Service implements LocationListener,
         mLastLocationUpdate = location;
         if (!fromLastLocation) mUpdateCount++;
         ParseHelper.initializeLocationParseObject(DeviceInfo.getIMEI(this), location.getLatitude(), location.getLongitude()).saveInBackground();
+        if (mLastLocationUpdate != null) {
+            maybeStopLocationUpdates(mLastLocationUpdate.getAccuracy());
+        }
         // call parse here
     }
 
@@ -151,7 +159,8 @@ public class DeviceFinderService extends Service implements LocationListener,
     }
 
     @Override
-    public void onDisconnected() {}
+    public void onDisconnected() {
+    }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {

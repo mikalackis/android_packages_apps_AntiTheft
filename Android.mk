@@ -5,8 +5,7 @@ LOCAL_MODULE_TAGS := optional
 
 LOCAL_SRC_FILES := $(call all-java-files-under, src)
 
-LOCAL_STATIC_JAVA_LIBRARIES := Keyguard \
-    android-support-v7-palette \
+LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-palette \
     android-support-v4 \
     android-support-v13 \
     android-visualizer \
@@ -26,7 +25,6 @@ google_play_dir := ../../../external/google/google_play_services/libproject/goog
 res_dir := $(google_play_dir) res
 
 LOCAL_RESOURCE_DIR := \
-    frameworks/base/packages/Keyguard/res \
     $(LOCAL_PATH)/res \
     $(addprefix $(LOCAL_PATH)/, $(res_dir))
 

@@ -20,8 +20,6 @@ public class AntiTheftService extends Service {
                 if (msg.what == 0) {
                     Log.i(TAG, "set message received: " + msg.arg1);
                     Toast.makeText(AntiTheftService.this, "Starting photo service "+msg.arg1, Toast.LENGTH_LONG).show();
-                    
-                    startService(new Intent(AntiTheftService.this,WhosThatService.class));
                 }
             } catch (Exception e) {
                 // Log, don't crash!

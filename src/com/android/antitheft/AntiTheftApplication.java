@@ -41,13 +41,9 @@ import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseUser;
 
-/**
- * Application class for SystemUI.
- */
 public class AntiTheftApplication extends Application {
 
-    private static final String TAG = "AntiTheftService";
-    private static final boolean DEBUG = false;
+    private static final String TAG = "AntiTheftApplication";
 
     /**
      * The classes of the stuff to start.
@@ -78,6 +74,9 @@ public class AntiTheftApplication extends Application {
         Log.i(TAG, "AntiTheft app created");
         
         Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD", "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
+        if(Config.DEBUG){
+        	Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+        }
         
 //        SecureSetting mSetting = new SecureSetting(this, new Handler(),
 //        		Global.AIRPLANE_MODE_ON) {
@@ -89,26 +88,6 @@ public class AntiTheftApplication extends Application {
 ////                mgr.setAirplaneMode(false);
 //            }
 //        };
-        
-        mTelephonyManager = (TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);
-        
-        DataObserver dataObserver = new DataObserver(new Handler());
-        dataObserver.startObserving();
-        
-        GlobalSetting mSetting = new GlobalSetting(this, new Handler(), Global.AIRPLANE_MODE_ON) {
-            @Override
-            protected void handleValueChanged(int value) {
-            	Log.i(TAG, "AirPlane mode value changed to: "+value);
-            	if(value == 1){
-            		Toast.makeText(AntiTheftApplication.this, "Sorry,  cant do AirPlane mode...",Toast.LENGTH_LONG).show();
-            		final ConnectivityManager mgr =
-                            (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                    mgr.setAirplaneMode(false);
-            	}
-            }
-        };
-        
-        mSetting.setListening(true);
         
         //ServiceManager.addService("antitheft", new AntiTheftService(getApplicationContext()));
         // Set the application theme that is inherited by all services. Note that setting the
@@ -136,38 +115,6 @@ public class AntiTheftApplication extends Application {
 //        }, filter);
     }
     
-    /** ContentObserver to watch mobile data on/off **/
-    private class DataObserver extends ContentObserver {
-        public DataObserver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        public void onChange(boolean selfChange) {
-            Log.i(TAG, "data state change");
-            int phoneCount = mTelephonyManager.getPhoneCount();
-            for (int i = 0; i < phoneCount; i++) {
-            	if(!mTelephonyManager.getDataEnabled()){
-            		 Settings.Global.putInt(getContentResolver(),
-                             Settings.Global.MOBILE_DATA + i, 1);
-                     int[] subId = SubscriptionManager.getSubId(i);
-                     mTelephonyManager.setDataEnabled(subId[0], true);
-                     Toast.makeText(AntiTheftApplication.this, "Sorry,  cant disable data...",Toast.LENGTH_LONG).show();
-            	}
-            }
-        }
-
-        public void startObserving() {
-            getContentResolver().registerContentObserver(
-                    Settings.Global.getUriFor(Settings.Global.MOBILE_DATA),
-                    false, this);
-        }
-
-        public void endObserving() {
-            getContentResolver().unregisterContentObserver(this);
-        }
-    }
-
     /**
      * Makes sure that all the SystemUI services are running. If they are already running, this is a
      * no-op. This is needed to conditinally start all the services, as we only need to have it in

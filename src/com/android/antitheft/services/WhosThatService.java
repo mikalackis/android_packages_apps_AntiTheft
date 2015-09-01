@@ -1,4 +1,4 @@
-package com.android.antitheft;
+package com.android.antitheft.services;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,6 +10,10 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.android.antitheft.DeviceInfo;
+import com.android.antitheft.ParseHelper;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -33,6 +37,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.PowerManager;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -89,17 +94,7 @@ public class WhosThatService extends Service {
         @Override
         public void handleMessage(Message msg) {
         	try {
-        		if(msg.what == CAMERA_IMAGE){
-	        		mCurrentCameraMode = msg.what;
-	                Toast.makeText(WhosThatService.this, "Starting photo service "+msg.what, Toast.LENGTH_LONG).show();
-	                openCamera();
-        		}
-        		else if(msg.what == CAMERA_VIDEO){
-        			mCurrentCameraMode = msg.what;
-	                Toast.makeText(WhosThatService.this, "Starting video service "+msg.what, Toast.LENGTH_LONG).show();
-	                openCamera();
-        		}
-        		else if(msg.what == CAMERA_STOP_RECORDING){
+        		if(msg.what == CAMERA_STOP_RECORDING){
         			stopRecordingVideo();
         		}
             } catch (Exception e) {
@@ -108,22 +103,25 @@ public class WhosThatService extends Service {
             }
         }
     };
+    
+    public static void startCameraService(Context context, int mode) {
+        Intent intent = new Intent(context, WhosThatService.class);
+        intent.putExtra(SERVICE_PARAM, mode);
+        context.startService(intent);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return new Messenger(mHandler).getBinder();
+    	return null;
     }
     
     
     
     @Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-    	 int mode = intent.getIntExtra(SERVICE_PARAM, 0);
-    	 Message msg=new Message();
-	     msg.what=mode;
-	     mHandler.sendMessage(msg);
-    	 
-    	 return Service.START_NOT_STICKY;
+    	mCurrentCameraMode = intent.getIntExtra(SERVICE_PARAM, 0);
+    	openCamera();
+    	return Service.START_NOT_STICKY;
 	}
 
 

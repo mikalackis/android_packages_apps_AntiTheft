@@ -14,7 +14,7 @@ import java.io.OutputStream;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
 import com.android.antitheft.R;
-import com.android.antitheft.WhosThatService;
+import com.android.antitheft.services.WhosThatService;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneFactory;
 
@@ -212,17 +212,17 @@ public class CheckPasswordActivity extends Activity {
 	}
 
 	private void checkPassword() {
-		String password = Settings.Secure.getString(getContentResolver(),
-				Settings.Secure.ANTITHEFT_PASSWORD);
-		String value = txtPassword.getText().toString();
-		if (value.equals(password)) {
-			performRebootSequence();
-		} else {
-			Toast.makeText(this, "Wrong password mate...", Toast.LENGTH_LONG)
-					.show();
-			whoIsBuggingMe();
-		}
-		finish();
+//		String password = Settings.Secure.getString(getContentResolver(),
+//				Settings.Secure.ANTITHEFT_PASSWORD);
+//		String value = txtPassword.getText().toString();
+//		if (value.equals(password)) {
+//			performRebootSequence();
+//		} else {
+//			Toast.makeText(this, "Wrong password mate...", Toast.LENGTH_LONG)
+//					.show();
+//			whoIsBuggingMe();
+//		}
+//		finish();
 	}
 
 	private void performRebootSequence() {
