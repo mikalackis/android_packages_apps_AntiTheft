@@ -17,6 +17,8 @@ public class AntiTheftSMSConstants {
 	public static final String LOCKDOWN="byebye";
 	// disable power button
 	public static final String SCREW_POWER="screw_power";
+	// enable power button
+	public static final String UNSCREW_POWER="unscrew_power";
 	
 
 }

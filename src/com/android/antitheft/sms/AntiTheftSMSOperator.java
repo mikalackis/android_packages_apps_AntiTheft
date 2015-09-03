@@ -1,6 +1,7 @@
 package com.android.antitheft.sms;
 
 import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
+import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.services.DeviceFinderService;
 
 import android.content.Context;
@@ -40,7 +41,13 @@ public class AntiTheftSMSOperator {
         }
         else if(msg.equals(AntiTheftSMSConstants.SCREW_POWER)){
         	// disable power button
-        	reportStatusToSender(returnNumber, "Power disable initialized");
+        	AntiTheftSecurityHelper.getInstance().performPowerSwitch(true);
+        	reportStatusToSender(returnNumber, "Power disabled initialized");
+        }
+        else if(msg.equals(AntiTheftSMSConstants.UNSCREW_POWER)){
+        	// disable power button
+        	AntiTheftSecurityHelper.getInstance().performPowerSwitch(false);
+        	reportStatusToSender(returnNumber, "Power enabled initialized");
         }
 	}
 	

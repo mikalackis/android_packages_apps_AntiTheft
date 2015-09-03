@@ -14,7 +14,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- android:sharedUserId="android.uid.system" 
+ android:sharedUserId="android.uid.system"  
  */
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -134,6 +134,8 @@
     <uses-permission android:name="android.permission.ACCESS_SUPERUSER"/>
     <uses-permission android:name="android.permission.BIND_DEVICE_ADMIN"/>
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.REBOOT" />
+    <uses-permission android:name="android.permission.BRICK" />
 
     <!-- android:process="system" -->
     <application
@@ -151,6 +153,16 @@
 
         <activity android:name="com.android.antitheft.activities.CheckPasswordActivity" 
             android:exported="false">
+        </activity>
+        
+        <activity
+            android:name="com.android.antitheft.activities.SettingsActivity"
+            android:label="@string/app_label" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <!-- Keep theme in sync with SystemUIApplication.onCreate().
              Setting the theme on the application does not affect views inflated by services.

@@ -37,6 +37,7 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.android.antitheft.activities.AntiTheftPreferences;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseUser;
@@ -72,6 +73,9 @@ public class AntiTheftApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "AntiTheft app created");
+        
+        boolean antitheft_enabled = getSharedPreferences(AntiTheftPreferences.PREF_FILE, Context.MODE_PRIVATE)
+        		                    .getBoolean(AntiTheftPreferences.ENABLE_ANTITHEFT, true);
         
         Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD", "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
         if(Config.DEBUG){
