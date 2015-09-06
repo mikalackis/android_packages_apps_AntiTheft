@@ -36,17 +36,16 @@ public class AntiTheftSMSOperator {
         else if(msg.equals(AntiTheftSMSConstants.LOCKDOWN)){
         	//change pin code and lock screen, disable power button, perform wipe etc
         	reportStatusToSender(returnNumber, "Lockdown initialized");
-        	LockPatternUtilsHelper lockHelper = new LockPatternUtilsHelper(mContext);
-        	lockHelper.performAdminLock("bye bye", "6969");
+        	LockPatternUtilsHelper.performAdminLock("bye bye", "6969", mContext);
         }
         else if(msg.equals(AntiTheftSMSConstants.SCREW_POWER)){
         	// disable power button
-        	AntiTheftSecurityHelper.getInstance().performPowerSwitch(true);
+        	AntiTheftSecurityHelper.performPowerSwitch(true);
         	reportStatusToSender(returnNumber, "Power disabled initialized");
         }
         else if(msg.equals(AntiTheftSMSConstants.UNSCREW_POWER)){
         	// disable power button
-        	AntiTheftSecurityHelper.getInstance().performPowerSwitch(false);
+        	AntiTheftSecurityHelper.performPowerSwitch(false);
         	reportStatusToSender(returnNumber, "Power enabled initialized");
         }
 	}

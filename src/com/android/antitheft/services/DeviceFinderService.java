@@ -49,7 +49,7 @@ public class DeviceFinderService extends Service implements LocationListener,
     private static final String EXTRA_KEY_ID = "key_id";
 
     private static final int LOCATION_UPDATE_INTERVAL = 5000;
-    private static final int MAX_LOCATION_UPDATES = 10;
+    private static final int MAX_LOCATION_UPDATES = 1;
     private static final int LOCATION_ACCURACY_THRESHOLD = 5; //meters
 
     private LocationClient mLocationClient;
@@ -95,12 +95,6 @@ public class DeviceFinderService extends Service implements LocationListener,
             mLocationClient = new LocationClient(context, this, this);
             mLocationClient.connect();
         }
-
-        // Reset the session
-//        if (intent != null) {
-//            Bundle extras = intent.getExtras();
-//            if (extras != null) mKeyId = extras.getString(EXTRA_KEY_ID);
-//        }
 
         if (mLocationClient.isConnected()) {
             restartLocationUpdates();

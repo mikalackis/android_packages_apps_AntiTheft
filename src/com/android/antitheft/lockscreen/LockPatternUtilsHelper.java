@@ -1,8 +1,5 @@
 package com.android.antitheft.lockscreen;
 
-import android.app.Activity;
-import android.app.KeyguardManager;
-import android.app.KeyguardManager.KeyguardLock;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
 
@@ -11,26 +8,18 @@ import com.android.internal.widget.LockPatternUtils;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-public class LockPatternUtilsHelper extends LockPatternUtils{
+public class LockPatternUtilsHelper{
 	
-    private static final String SYSTEM_DIRECTORY = "/system/";
+	private static final String SYSTEM_DIRECTORY = "/system/";
     private static final String LOCK_PATTERN_FILE = "gesture.key";
     private static final String LOCK_PASSWORD_FILE = "password.key";
 	
-	private LockPatternUtilsHelper instance;
-	
-	private Context mContext;
-	
-	public LockPatternUtilsHelper(Context context){
-		super(context);
-		mContext = context;
-	}
-	
-	public void performAdminLock(String message,String password){
-		clearLock(false);
-		saveLockPassword(password,
+	public static void performAdminLock(String message,String password, Context context){
+		LockPatternUtils lpu = new LockPatternUtils(context);
+		lpu.clearLock(false);
+		lpu.saveLockPassword(password,
 				DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC);
-		KeyguardManager keyguardManager = (KeyguardManager)mContext.getSystemService(Activity.KEYGUARD_SERVICE); 
+		lpu=null;
 	}
 	
 	public byte[] getUnlockPassword() {

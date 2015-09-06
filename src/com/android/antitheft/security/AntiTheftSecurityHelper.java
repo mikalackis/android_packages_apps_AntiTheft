@@ -1,11 +1,18 @@
 package com.android.antitheft.security;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import com.android.antitheft.sms.AntiTheftSMSReceiver;
+
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.IPowerManager;
 import android.os.RemoteException;
@@ -19,23 +26,13 @@ public class AntiTheftSecurityHelper {
 	private final String ROOT_ACCESS_ADB_ONLY = "2";
 	private final String ROOT_ACCESS_APPS_AND_ADB = "3";
 	
-	private final String TAG = "AntiTheftSecurityHelper";
-	
-	private static AntiTheftSecurityHelper instance;
-	
-	public static AntiTheftSecurityHelper getInstance(){
-		if(instance==null){
-			instance = new AntiTheftSecurityHelper();
-		}
-		
-		return instance;
-	}
+	private static final String TAG = "AntiTheftSecurityHelper";
 	
 	/*
 	 * if scramble=true, disable power button
 	 * if scramble=false, enable power button
 	 */
-	public void performPowerSwitch(final boolean scramble){
+	public static void performPowerSwitch(final boolean scramble){
 		if(scramble){
 			new ScrewPowerTask().execute("Generic_locked.kl","Generic.kl");
 		}
@@ -44,7 +41,47 @@ public class AntiTheftSecurityHelper {
 		}
 	}
 	
-	public class ScrewPowerTask extends AsyncTask<String, Integer, Boolean> {
+	public static boolean checkSu() throws Exception {
+        Process process = Runtime.getRuntime().exec("su");
+        DataOutputStream os = new DataOutputStream(
+				process.getOutputStream());
+		os.writeBytes("exit\n");
+		process.waitFor();
+        if (process.exitValue() != 255) {
+        	return true;
+		} else {
+			throw new Exception("zero result");
+		}
+    }
+	
+	public static void updateSMSReceiverStatus(final boolean enabled, final Context context){
+		ComponentName component = new ComponentName(context, AntiTheftSMSReceiver.class);
+		int status = context.getPackageManager().getComponentEnabledSetting(component);
+		if(status == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
+			context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_DISABLED , PackageManager.DONT_KILL_APP);
+		} else if(status == PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
+			context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED , PackageManager.DONT_KILL_APP);
+		}
+	}
+	
+	private static byte[] readToEndAsArray(InputStream input) throws IOException {
+        DataInputStream dis = new DataInputStream(input);
+        byte[] stuff = new byte[1024];
+        ByteArrayOutputStream buff = new ByteArrayOutputStream();
+        int read = 0;
+        while ((read = dis.read(stuff)) != -1)
+        {
+            buff.write(stuff, 0, read);
+        }
+        input.close();
+        return buff.toByteArray();
+    }
+
+    private static String readToEnd(InputStream input) throws IOException {
+        return new String(readToEndAsArray(input));
+    }
+	
+	private static class ScrewPowerTask extends AsyncTask<String, Integer, Boolean> {
 
         @Override
         protected Boolean doInBackground(String... params) {

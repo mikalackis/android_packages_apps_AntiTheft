@@ -2,6 +2,7 @@ package com.android.antitheft.activities;
 
 import java.util.ArrayList;
 
+import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.R;
 
 import android.app.Activity;
@@ -9,10 +10,12 @@ import android.app.ActivityManager;
 import android.app.ActivityManagerNative;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.admin.DevicePolicyManager;
 import android.app.backup.IBackupManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.SystemProperties;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -23,26 +26,23 @@ import android.preference.PreferenceGroup;
 import android.preference.PreferenceScreen;
 import android.preference.SwitchPreference;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import com.android.antitheft.security.AntiTheftSecurityHelper;
+import com.android.antitheft.util.SharedPreferencesUtility;
 import com.android.antitheft.widget.SwitchBar;
 
 public class AntiTheftPreferences extends PreferenceFragment implements SwitchBar.OnSwitchChangeListener, OnPreferenceChangeListener{
 	
 	private static final String TAG = "AntiTheftPreferences";
-	
-	public static final String PREF_FILE = "antitheft";
-	
-	public static final String ENABLE_ANTITHEFT = "enable_antitheft";
-	
-    private static final String PARSE_APP_ID = "antitheft_parse_app_id";
-    private static final String PARSE_CLIENT_KEY = "antitheft_parse_client_key";
 	
 	private SwitchBar mSwitchBar;
 	
@@ -58,8 +58,8 @@ public class AntiTheftPreferences extends PreferenceFragment implements SwitchBa
         super.onCreate(icicle);
         addPreferencesFromResource(R.xml.antitheft_prefs);
         
-        mParseAppId = (EditTextPreference)findPreference(PARSE_APP_ID);
-        mParseClientKey = (EditTextPreference)findPreference(PARSE_CLIENT_KEY);
+        mParseAppId = (EditTextPreference)findPreference(SharedPreferencesUtility.PARSE_APP_ID);
+        mParseClientKey = (EditTextPreference)findPreference(SharedPreferencesUtility.PARSE_CLIENT_KEY);
         
     }
 	
@@ -76,8 +76,7 @@ public class AntiTheftPreferences extends PreferenceFragment implements SwitchBa
     public void onResume() {
         super.onResume();
 
-        mLastEnabledState = getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE)
-        		.getBoolean(ENABLE_ANTITHEFT, false);
+        mLastEnabledState = SharedPreferencesUtility.getInstance().getBoolPreference(SharedPreferencesUtility.ENABLE_ANTITHEFT,false);
         mSwitchBar.setChecked(mLastEnabledState);
         setPrefsEnabledState(mLastEnabledState);
 
@@ -91,19 +90,48 @@ public class AntiTheftPreferences extends PreferenceFragment implements SwitchBa
         }
         if (isChecked != mLastEnabledState) {
             if (isChecked) {
-            	getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE).edit()
-                .putBoolean(ENABLE_ANTITHEFT, true)
-                .apply();
+            	final ProgressDialog dlg = new ProgressDialog(getActivity());
+                dlg.setTitle("SU check");
+                dlg.setMessage("SU check in progress...");
+                dlg.setIndeterminate(true);
+                dlg.show();
+                new Thread() {
+                    public void run() {
+                        boolean _error = false;
+                        try {
+                        	if(AntiTheftSecurityHelper.checkSu()){
+                        		_error=false;
+                        	}
+                        }
+                        catch (Exception e) {
+                            e.printStackTrace();
+                            Log.i(TAG,e.getMessage());
+                            _error = true;
+                        }
+                        final boolean error = _error;
+                        dlg.dismiss();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (error) {
+                                	SharedPreferencesUtility.getInstance().setBoolPreference(SharedPreferencesUtility.ENABLE_ANTITHEFT,false);
+                                	AntiTheftApplication.getInstance().unregisterReceivers();
+                        			Toast.makeText(getActivity(),"SU access not available",Toast.LENGTH_LONG).show();
+                                }
+                                else {
+                                	SharedPreferencesUtility.getInstance().setBoolPreference(SharedPreferencesUtility.ENABLE_ANTITHEFT,true);
+                                	AntiTheftApplication.getInstance().registerReceivers();
+                                	Toast.makeText(getActivity(),"SU access granted",Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    };
+                }.start();
             } else {
                 mLastEnabledState = isChecked;
-                getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE).edit()
-                .putBoolean(ENABLE_ANTITHEFT, true)
-                .apply();
+                SharedPreferencesUtility.getInstance().setBoolPreference(SharedPreferencesUtility.ENABLE_ANTITHEFT,false);
+                AntiTheftApplication.getInstance().unregisterReceivers();
                 setPrefsEnabledState(mLastEnabledState);
-
-                getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE).edit()
-                .putBoolean(ENABLE_ANTITHEFT, false)
-                .apply();
             }
         }
 		
@@ -119,16 +147,12 @@ public class AntiTheftPreferences extends PreferenceFragment implements SwitchBa
 
 	@Override
 	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		if (PARSE_APP_ID.equals(preference.getKey())) {
-			getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE).edit()
-            .putString(PARSE_APP_ID, newValue.toString())
-            .apply();
+		if (SharedPreferencesUtility.PARSE_APP_ID.equals(preference.getKey())) {
+			SharedPreferencesUtility.getInstance().setStringPreference(SharedPreferencesUtility.PARSE_APP_ID,newValue.toString());
 			return true;
 		}
-		else if(PARSE_CLIENT_KEY.equals(preference.getKey())){
-			getActivity().getSharedPreferences(PREF_FILE, Context.MODE_PRIVATE).edit()
-            .putString(PARSE_CLIENT_KEY, newValue.toString())
-            .apply();
+		else if(SharedPreferencesUtility.PARSE_CLIENT_KEY.equals(preference.getKey())){
+			SharedPreferencesUtility.getInstance().setStringPreference(SharedPreferencesUtility.PARSE_CLIENT_KEY,newValue.toString());
 			return true;
 		}
 		else {

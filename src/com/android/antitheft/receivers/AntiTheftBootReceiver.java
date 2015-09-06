@@ -17,7 +17,7 @@ import android.widget.Toast;
 
 public class AntiTheftBootReceiver extends BroadcastReceiver {
 	
-	private static final String TAG = "AntiTheftBootReceiver";
+	private static final String TAG = "AntiTheftApplication";
 
     @Override
     public void onReceive(Context context, Intent intent) {

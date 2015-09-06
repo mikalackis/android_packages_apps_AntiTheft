@@ -34,10 +34,18 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.android.antitheft.activities.AntiTheftPreferences;
+import com.android.antitheft.util.SharedPreferencesUtility;
+import com.android.antitheft.receivers.AntiTheftBootReceiver;
+import com.android.antitheft.sms.AntiTheftSMSReceiver;
 import com.parse.Parse;
 import com.parse.ParseACL;
 import com.parse.ParseUser;
@@ -45,78 +53,71 @@ import com.parse.ParseUser;
 public class AntiTheftApplication extends Application {
 
     private static final String TAG = "AntiTheftApplication";
-
-    /**
-     * The classes of the stuff to start.
-     */
-//    private final Class<?>[] SERVICES = new Class[] {
-//            com.android.systemui.keyguard.KeyguardViewMediator.class,
-//            com.android.systemui.recent.Recents.class,
-//            com.android.systemui.volume.VolumeUI.class,
-//            com.android.systemui.statusbar.SystemBars.class,
-//            com.android.systemui.usb.StorageNotification.class,
-//            com.android.systemui.power.PowerUI.class,
-//            com.android.systemui.media.RingtonePlayer.class
-//    };
-
-    /**
-     * Hold a reference on the stuff we start.
-     */
-//    private final SystemUI[] mServices = new SystemUI[SERVICES.length];
-//    private boolean mServicesStarted;
-//    private boolean mBootCompleted;
-//    private final Map<Class<?>, Object> mComponents = new HashMap<Class<?>, Object>();
     
+    private static AntiTheftApplication mInstance;
+
     private TelephonyManager mTelephonyManager;
+    private AntiTheftBootReceiver mBootReceiver;
+    private AntiTheftSMSReceiver mSMSReceiver;
+    
+    public static AntiTheftApplication getInstance(){
+    	return mInstance;
+    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "AntiTheft app created");
         
-        boolean antitheft_enabled = getSharedPreferences(AntiTheftPreferences.PREF_FILE, Context.MODE_PRIVATE)
-        		                    .getBoolean(AntiTheftPreferences.ENABLE_ANTITHEFT, true);
+        mInstance = this;
         
-        Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD", "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
+        SharedPreferencesUtility.init(this);
+        
+        boolean isEnabled = SharedPreferencesUtility.getInstance().getBoolPreference(SharedPreferencesUtility.ENABLE_ANTITHEFT, false);
+        if(isEnabled){
+        	mBootReceiver = new AntiTheftBootReceiver();
+            mSMSReceiver = new AntiTheftSMSReceiver();
+            Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD", "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
+        }
+        else{
+        	mBootReceiver = null;
+        	mSMSReceiver = null;
+        }
+        
         if(Config.DEBUG){
         	Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         }
         
-//        SecureSetting mSetting = new SecureSetting(this, new Handler(),
-//        		Global.AIRPLANE_MODE_ON) {
-//            @Override
-//            protected void handleValueChanged(int value, boolean observedChange) {
-//            	Log.i(TAG, "AirPlane mode value changed to: "+value);
-////            	final ConnectivityManager mgr =
-////                        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-////                mgr.setAirplaneMode(false);
-//            }
-//        };
-        
-        //ServiceManager.addService("antitheft", new AntiTheftService(getApplicationContext()));
-        // Set the application theme that is inherited by all services. Note that setting the
-        // application theme in the manifest does only work for activities. Keep this in sync with
-        // the theme set there.
-        //setTheme(R.style.systemui_theme);
-
-//        IntentFilter filter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
-//        filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
-//        registerReceiver(new BroadcastReceiver() {
-//            @Override
-//            public void onReceive(Context context, Intent intent) {
-//                if (mBootCompleted) return;
-//
-//                if (DEBUG) Log.v(TAG, "BOOT_COMPLETED received");
-//                unregisterReceiver(this);
-//                mBootCompleted = true;
-//                if (mServicesStarted) {
-//                    final int N = mServices.length;
-//                    for (int i = 0; i < N; i++) {
-//                        mServices[i].onBootCompleted();
-//                    }
-//                }
-//            }
-//        }, filter);
+    }
+    
+    public void registerReceivers(){
+    	Toast.makeText(this, "Registering receivers...", Toast.LENGTH_LONG).show();
+    	IntentFilter filter=new IntentFilter();
+        filter.addAction(Config.INTENT_BOOT);
+        filter.addAction(Config.INTENT_SMS_RECEIVED);
+        registerReceiver(mBootReceiver, filter);
+        registerReceiver(mSMSReceiver, filter);
+    }
+    
+    public void unregisterReceivers(){
+    	Toast.makeText(this, "Unregistering receivers...", Toast.LENGTH_LONG).show();
+    	if(mBootReceiver!=null){
+    		try{
+    			unregisterReceiver(mBootReceiver);
+    		}
+    		catch(Exception e){
+    			e.printStackTrace();
+    		}
+    	}
+    	
+    	if(mSMSReceiver!=null){
+    		try{
+    			unregisterReceiver(mSMSReceiver);
+    		}
+    		catch(Exception e){
+    			e.printStackTrace();
+    		}
+    	}
     }
     
     /**
