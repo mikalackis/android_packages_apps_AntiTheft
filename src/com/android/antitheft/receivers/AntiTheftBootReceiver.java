@@ -21,7 +21,7 @@ public class AntiTheftBootReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-    	Log.i(TAG, "Boot received, should send data");
+    	Log.i(TAG, "Boot received, should send data ");
         ParseHelper.initializeActivityParseObject("AntiTheft online", DeviceInfo.getIMEI(context), "LOCATION").saveEventually();
         DeviceFinderService.reportLocation(context);
     }
