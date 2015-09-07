@@ -73,16 +73,17 @@ public class AntiTheftApplication extends Application {
         
         SharedPreferencesUtility.init(this);
         
-        boolean isEnabled = SharedPreferencesUtility.getInstance().getBoolPreference(SharedPreferencesUtility.ENABLE_ANTITHEFT, false);
-        if(isEnabled){
-        	mBootReceiver = new AntiTheftBootReceiver();
-            mSMSReceiver = new AntiTheftSMSReceiver();
-            Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD", "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
-        }
-        else{
-        	mBootReceiver = null;
-        	mSMSReceiver = null;
-        }
+        Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD", "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
+        
+//        boolean isEnabled = SharedPreferencesUtility.getInstance().getBoolPreference(SharedPreferencesUtility.ENABLE_ANTITHEFT, false);
+//        if(isEnabled){
+//        	mBootReceiver = new AntiTheftBootReceiver();
+//            mSMSReceiver = new AntiTheftSMSReceiver();
+//        }
+//        else{
+//        	mBootReceiver = null;
+//        	mSMSReceiver = null;
+//        }
         
         if(Config.DEBUG){
         	Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
