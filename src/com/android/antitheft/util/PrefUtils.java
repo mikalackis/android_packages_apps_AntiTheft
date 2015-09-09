@@ -10,7 +10,7 @@ import android.content.SharedPreferences;
  *         Helper class for storing shared prefferences
  * 
  */
-public class SharedPreferencesUtility {
+public class PrefUtils {
 
     public static final String SHARED_PREFS = "antitheft";
 
@@ -19,22 +19,24 @@ public class SharedPreferencesUtility {
 	
     public static final String PARSE_APP_ID = "antitheft_parse_app_id";
     public static final String PARSE_CLIENT_KEY = "antitheft_parse_client_key";
+    public static final String ANTITHEFT_MODE = "antitheft_mode";
+    public static final String ANTITHEFT_KEYLAYOUT_FILES_PRESENT = "antitheft_keylayout_present";
 
     private static Context mContext;
 
-    static private SharedPreferencesUtility instance;
+    static private PrefUtils instance;
 
     static public void init(final Context ctx) {
         if (null == instance) {
-            instance = new SharedPreferencesUtility(ctx);
+            instance = new PrefUtils(ctx);
         }
     }
 
-    static public SharedPreferencesUtility getInstance() {
+    static public PrefUtils getInstance() {
         return instance;
     }
 
-    private SharedPreferencesUtility(final Context ctx) {
+    private PrefUtils(final Context ctx) {
         mContext = ctx;
     }
 

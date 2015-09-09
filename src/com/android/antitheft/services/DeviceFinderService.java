@@ -16,6 +16,7 @@
 
 package com.android.antitheft.services;
 
+import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
 import com.google.android.gms.common.ConnectionResult;
@@ -31,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -43,14 +45,20 @@ public class DeviceFinderService extends Service implements LocationListener,
         GooglePlayServicesClient.ConnectionCallbacks,  GooglePlayServicesClient.OnConnectionFailedListener{
 
     private static final String TAG = DeviceFinderService.class.getSimpleName();
+    
+    // Binder given to clients
+    private final IBinder mBinder = new DeviceFinderServiceBinder();
+    
     private static PowerManager.WakeLock sWakeLock;
 
     private static final String EXTRA_ACCOUNT = "account";
     private static final String EXTRA_KEY_ID = "key_id";
+    private static final String EXTRA_STATE = "state";
 
     private static final int LOCATION_UPDATE_INTERVAL = 5000;
     private static final int MAX_LOCATION_UPDATES = 1;
     private static final int LOCATION_ACCURACY_THRESHOLD = 5; //meters
+    private boolean mConstantReporting = false;
 
     private LocationClient mLocationClient;
     private Location mLastLocationUpdate;
@@ -60,7 +68,7 @@ public class DeviceFinderService extends Service implements LocationListener,
 
     private boolean mIsRunning = false;
 
-    public static void reportLocation(Context context) {
+    public static void reportLocation(Context context, int state) {
         if (sWakeLock == null) {
             PowerManager pm = (PowerManager)
                     context.getSystemService(Context.POWER_SERVICE);
@@ -70,12 +78,13 @@ public class DeviceFinderService extends Service implements LocationListener,
             sWakeLock.acquire();
         }
         Intent intent = new Intent(context, DeviceFinderService.class);
+        intent.putExtra(EXTRA_STATE, state);
         context.startService(intent);
     }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     @Override
@@ -92,6 +101,10 @@ public class DeviceFinderService extends Service implements LocationListener,
             } catch (SettingNotFoundException e) {
             	Log.e(TAG, "Unable find location settings.", e);
             }
+            int state = intent.getIntExtra(EXTRA_STATE, Config.ANTITHEFT_STATE.NORMAL.getState());
+            if(state == Config.ANTITHEFT_STATE.LOCKDOWN.getState()){
+            	mConstantReporting = true;
+            }
             mLocationClient = new LocationClient(context, this, this);
             mLocationClient.connect();
         }
@@ -104,10 +117,13 @@ public class DeviceFinderService extends Service implements LocationListener,
     }
 
     private LocationRequest getLocationRequest() {
-        return LocationRequest.create()
+    	LocationRequest lr=LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(LOCATION_UPDATE_INTERVAL)
-                .setNumUpdates(MAX_LOCATION_UPDATES);
+                .setInterval(LOCATION_UPDATE_INTERVAL);
+    	if(mConstantReporting){
+    		lr.setNumUpdates(MAX_LOCATION_UPDATES);
+    	}
+    	return lr;
     }
 
     private void restartLocationUpdates() {
@@ -163,14 +179,25 @@ public class DeviceFinderService extends Service implements LocationListener,
 
     private void maybeStopLocationUpdates(float accuracy) {
         // if mUpdateCount, then this is a case we have the last known location. Don't stop in that case.
-        if ((mUpdateCount != 0) && (accuracy <= LOCATION_ACCURACY_THRESHOLD || mUpdateCount == MAX_LOCATION_UPDATES)) {
+        if (!mConstantReporting && (mUpdateCount != 0) && (accuracy <= LOCATION_ACCURACY_THRESHOLD || mUpdateCount == MAX_LOCATION_UPDATES)) {
             stopUpdates();
         }
     }
 
-    private void stopUpdates() {
+    public void stopUpdates() {
         mLocationClient.removeLocationUpdates(this);
         mLocationClient.disconnect();
         stopSelf();
+    }
+    
+    /**
+     * Class used for the client Binder.  Because we know this service always
+     * runs in the same process as its clients, we don't need to deal with IPC.
+     */
+    public class DeviceFinderServiceBinder extends Binder {
+        public DeviceFinderService getService() {
+            // Return this instance of DeviceFinder so clients can call public methods
+            return DeviceFinderService.this;
+        }
     }
 }

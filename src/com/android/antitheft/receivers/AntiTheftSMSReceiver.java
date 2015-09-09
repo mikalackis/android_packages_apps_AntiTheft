@@ -1,4 +1,6 @@
-package com.android.antitheft.sms;
+package com.android.antitheft.receivers;
+
+import com.android.antitheft.sms.AntiTheftSMSOperator;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

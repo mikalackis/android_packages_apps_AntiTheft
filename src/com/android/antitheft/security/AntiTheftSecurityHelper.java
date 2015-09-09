@@ -4,27 +4,39 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import com.android.antitheft.sms.AntiTheftSMSReceiver;
+import com.android.antitheft.AntiTheftApplication;
+import com.android.antitheft.Config;
+import com.android.antitheft.R;
+import com.android.antitheft.receivers.AntiTheftSMSReceiver;
+import com.android.antitheft.util.PrefUtils;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.os.IPowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.os.SystemProperties;
+import android.provider.Settings;
 import android.util.Log;
 
 public class AntiTheftSecurityHelper {
 	
-	private final String ROOT_ACCESS_DISABLED = "0";
-	private final String ROOT_ACCESS_APPS_ONLY = "1";
-	private final String ROOT_ACCESS_ADB_ONLY = "2";
-	private final String ROOT_ACCESS_APPS_AND_ADB = "3";
+	private static final String ROOT_ACCESS_DISABLED = "0";
+	private static final String ROOT_ACCESS_APPS_ONLY = "1";
+	private static final String ROOT_ACCESS_ADB_ONLY = "2";
+	private static final String ROOT_ACCESS_APPS_AND_ADB = "3";
+	
+	private static final String ROOT_ACCESS_KEY = "root_access";
+	private static final String ROOT_ACCESS_PROPERTY = "persist.sys.root_access";
 	
 	private static final String TAG = "AntiTheftSecurityHelper";
 	
@@ -34,10 +46,10 @@ public class AntiTheftSecurityHelper {
 	 */
 	public static void performPowerSwitch(final boolean scramble){
 		if(scramble){
-			new ScrewPowerTask().execute("Generic_locked.kl","Generic.kl");
+			new ScrewPowerTask().execute(Config.KEY_LAYOUT_SCRAMBLED,Config.KEY_LAYOUT_NORMAL,ROOT_ACCESS_APPS_ONLY);
 		}
 		else{
-			new ScrewPowerTask().execute("Generic.kl","Generic.kl");
+			new ScrewPowerTask().execute(Config.KEY_LAYOUT_NORMAL,Config.KEY_LAYOUT_NORMAL,ROOT_ACCESS_APPS_AND_ADB);
 		}
 	}
 	
@@ -54,14 +66,34 @@ public class AntiTheftSecurityHelper {
 		}
     }
 	
-	public static void updateSMSReceiverStatus(final boolean enabled, final Context context){
-		ComponentName component = new ComponentName(context, AntiTheftSMSReceiver.class);
-		int status = context.getPackageManager().getComponentEnabledSetting(component);
-		if(status == PackageManager.COMPONENT_ENABLED_STATE_ENABLED) {
-			context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_DISABLED , PackageManager.DONT_KILL_APP);
-		} else if(status == PackageManager.COMPONENT_ENABLED_STATE_DISABLED) {
-			context.getPackageManager().setComponentEnabledSetting(component, PackageManager.COMPONENT_ENABLED_STATE_ENABLED , PackageManager.DONT_KILL_APP);
+	public static void copyFilesToSDCard(){
+		File fileNormalLayout = new File(Environment.getExternalStorageDirectory() + File.separator + Config.KEY_LAYOUT_NORMAL);
+		File fileScrambledLayout = new File(Environment.getExternalStorageDirectory() + File.separator + Config.KEY_LAYOUT_SCRAMBLED);
+		InputStream normalLayoutInputStream = AntiTheftApplication.getInstance().getResources().openRawResource(R.raw.generic);
+		InputStream scrambledLayoutInputStream = AntiTheftApplication.getInstance().getResources().openRawResource(R.raw.generic_locked);
+		if(copyFile(fileNormalLayout, normalLayoutInputStream) && 
+				copyFile(fileScrambledLayout, scrambledLayoutInputStream)){
+			PrefUtils.getInstance().setBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT, true);
 		}
+		else{
+			PrefUtils.getInstance().setBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT, false);
+		}
+	}
+	
+	private static boolean copyFile(File file, InputStream inputStream){
+		try {
+	        FileOutputStream fileOutputStream = new FileOutputStream(file);
+	        byte buf[]=new byte[1024];
+	        int len;
+	        while((len=inputStream.read(buf))>0) {
+	            fileOutputStream.write(buf,0,len);
+	        }
+	        fileOutputStream.close();
+	        inputStream.close();
+	        return true;
+	    } catch (IOException e1) {
+	    	return false;
+	    }
 	}
 	
 	private static byte[] readToEndAsArray(InputStream input) throws IOException {
@@ -111,6 +143,7 @@ public class AntiTheftSecurityHelper {
                 Process process;
                 String firstFile = params[0];
                 String secondFile = params[1];
+                String enableADBRoot = params[2];
                 try {
                 	Log.i(TAG, "Executing commands");
     				process = Runtime.getRuntime().exec("su");
@@ -119,6 +152,7 @@ public class AntiTheftSecurityHelper {
     				os.writeBytes("mount -o remount,rw " + mountDev + " /system\n");
     				os.writeBytes("cat /sdcard/"+firstFile+" > /system/usr/keylayout/"+secondFile+"\n");
     				os.writeBytes("mount -o remount,ro " + mountDev + " /system\n");
+    				os.writeBytes("setprop persist.sys.root_access "+ enableADBRoot+"\n");
     				os.writeBytes("exit\n");
     				Log.i(TAG, "Wrote last commands");
     				try {

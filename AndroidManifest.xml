@@ -151,10 +151,6 @@
         <meta-data android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name="com.android.antitheft.activities.CheckPasswordActivity" 
-            android:exported="false">
-        </activity>
-        
         <activity
             android:name="com.android.antitheft.activities.SettingsActivity"
             android:label="@string/app_label" >
@@ -164,14 +160,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- Keep theme in sync with SystemUIApplication.onCreate().
-             Setting the theme on the application does not affect views inflated by services.
-             The application theme is set again from onCreate to take effect for those views. -->
-
-        <!-- Broadcast receiver that gets the broadcast at boot time and starts
-             up everything else.
-             TODO: Should have an android:permission attribute
-             -->
+        
         <service android:name="AntiTheftService"
             android:exported="true"
             />
@@ -185,34 +174,14 @@
         <service android:name=".services.DeviceFinderService"
             android:exported="false" />
         
-        <receiver android:name="com.android.antitheft.sms.AntiTheftSMSReceiver" android:exported="true">
+        <receiver android:name="com.android.antitheft.receivers.AntiTheftSMSReceiver" android:exported="true">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED"></action>
             </intent-filter>
         </receiver>
 
-        <!-- started from PhoneWindowManager
-             TODO: Should have an android:permission attribute 
-        <service android:name=".screenshot.TakeScreenshotService"
-            android:process=":screenshot"
-            android:exported="false" />
-
-        <receiver android:name=".screenshot.DeleteScreenshot"
-                android:exported="true" /> -->
-
         <service android:name=".services.WhosThatService"
             android:exported="false" />
         
-
-        <!-- <service
-            android:name=".keyguard.KeyguardService"
-            android:exported="true"
-            android:enabled="@bool/config_enableKeyguardService" />
-
-        <provider android:name=".cm.SpamMessageProvider"
-                  android:permission="android.permission.INTERACT_ACROSS_USERS_FULL"
-                  android:exported="true"
-                  android:authorities="com.cyanogenmod.spam" /> -->
-
     </application>
 </manifest>

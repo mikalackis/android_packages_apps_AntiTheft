@@ -7,11 +7,10 @@ import com.parse.ParseFile;
 public class ParseHelper {
 	
 	public static ParseObject initializeActivityParseObject(final String status,
-			final String imei, final String location){
+			final String imei){
 		ParseObject parseObject = new ParseObject("ActivityMonitor");
 		parseObject.put("status", status != null ? status:"");
 		parseObject.put("imei", imei != null ? imei:"");
-		parseObject.put("location", location != null ? location:"");
 		return parseObject;
 	}
 	
