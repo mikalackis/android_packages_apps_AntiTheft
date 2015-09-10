@@ -45,15 +45,8 @@ import android.view.Surface;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-/* google vision imports */
-import com.google.android.gms.vision.CameraSource;
-import com.google.android.gms.vision.MultiProcessor;
-import com.google.android.gms.vision.Tracker;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.FaceDetector;
-
 /** Takes a single photo on service start. */
-public class WhosThatService extends Service {
+public class CopyOfWhosThatService extends Service {
 	
 	public static final String TAG="WhosThatService";
 	
@@ -112,7 +105,7 @@ public class WhosThatService extends Service {
     };
     
     public static void startCameraService(Context context, int mode) {
-        Intent intent = new Intent(context, WhosThatService.class);
+        Intent intent = new Intent(context, CopyOfWhosThatService.class);
         intent.putExtra(SERVICE_PARAM, mode);
         context.startService(intent);
     }
@@ -240,7 +233,7 @@ public class WhosThatService extends Service {
 						CaptureRequest request, TotalCaptureResult result) {
 
 					super.onCaptureCompleted(session, request, result);
-					Toast.makeText(WhosThatService.this, "Saved:"+file, Toast.LENGTH_SHORT).show();
+					Toast.makeText(CopyOfWhosThatService.this, "Saved:"+file, Toast.LENGTH_SHORT).show();
 					closeCamera();  
 					stopSelf();
 				}
