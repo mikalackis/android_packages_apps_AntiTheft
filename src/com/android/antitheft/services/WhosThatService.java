@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
 
@@ -51,6 +52,9 @@ import com.google.android.gms.vision.MultiProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.face.LargestFaceFocusingProcessor;
+import com.google.android.gms.vision.Tracker;
+import com.google.android.gms.vision.Detector;
 
 /** Takes a single photo on service start. */
 public class WhosThatService extends Service {
@@ -71,6 +75,8 @@ public class WhosThatService extends Service {
 	private CaptureRequest.Builder mPreviewBuilder;
 	private CameraCaptureSession mPreviewSession;
 	private ImageReader mImageReader;
+	
+    private CameraSource mCameraSource = null;
 	
 	private int mCurrentCameraMode=CAMERA_IMAGE;
 	
@@ -381,6 +387,9 @@ public class WhosThatService extends Service {
         } catch (Exception e) {
             throw new RuntimeException("Interrupted while trying to lock camera closing.");
         } 
+        if(mCameraSource!=null){
+        	mCameraSource.release();
+        }
     }
     
     private void setUpMediaRecorder() throws IOException {
@@ -409,22 +418,45 @@ public class WhosThatService extends Service {
     }
     
     private void openCamera() {
-		
-		CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-		Log.e(TAG, "openCamera E");
-		try {
-			String cameraId = getCamera(manager);
-			if(mCurrentCameraMode == CAMERA_VIDEO){
-				mMediaRecorder = new MediaRecorder();
-				CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
-		        StreamConfigurationMap map = characteristics
-		                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-		        mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
-			}
-			manager.openCamera(cameraId, mStateCallback, null);
-		} catch (CameraAccessException e) {
-			e.printStackTrace();
-		}
+    	if(mCurrentCameraMode == CAMERA_IMAGE){
+    		FaceDetector faceDetector = new FaceDetector.Builder(AntiTheftApplication.getInstance())
+    	    .setProminentFaceOnly(true)
+    	    .setClassificationType(FaceDetector.ALL_CLASSIFICATIONS)
+    	    .build();
+    		
+    		faceDetector.setProcessor(
+    				  new LargestFaceFocusingProcessor(
+    				    faceDetector,
+    				    new FaceTracker()));
+    		
+    		mCameraSource = new CameraSource.Builder(AntiTheftApplication.getInstance(), faceDetector)
+    		  .setFacing(CameraSource.CAMERA_FACING_FRONT)
+    		  .build();
+    		try{
+    			mCameraSource.start();
+    		}
+    		catch(Exception e){
+    			e.printStackTrace();
+    		}
+    	}
+    	else{
+    		CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+    		Log.e(TAG, "openCamera E");
+    		try {
+    			String cameraId = getCamera(manager);
+    			if(mCurrentCameraMode == CAMERA_VIDEO){
+    				mMediaRecorder = new MediaRecorder();
+    				CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+    		        StreamConfigurationMap map = characteristics
+    		                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+    		        mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
+    			}
+    			manager.openCamera(cameraId, mStateCallback, null);
+    		} catch (CameraAccessException e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	
 		Log.e(TAG, "openCamera X");
 	}
     
@@ -474,6 +506,22 @@ public class WhosThatService extends Service {
 		}
 		
 	};
+	
+	class FaceTracker extends Tracker<Face> {
+		  public void onNewItem(int id, Face face) {
+		    Log.i(TAG, "Awesome person detected.  Hello!");
+		  }
+
+		  public void onUpdate(Detector.Detections<Face> detections, Face face) {
+		    if (face.getIsSmilingProbability() > 0.75) {
+		      Log.i(TAG, "I see a smile.  They must really enjoy your app.");
+		    }
+		  }
+
+		  public void onDone() {
+		    Log.i(TAG, "Elvis has left the building.");
+		  }
+		}
 
     
    

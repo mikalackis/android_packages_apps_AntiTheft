@@ -7,6 +7,7 @@ import com.android.antitheft.ParseHelper;
 import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.services.DeviceFinderService;
+import com.android.antitheft.services.WhosThatService;
 import com.android.antitheft.services.DeviceFinderService.DeviceFinderServiceBinder;
 import com.android.antitheft.util.PrefUtils;
 
@@ -39,6 +40,7 @@ public class AntiTheftSMSOperator {
         else if(msg.equals(AntiTheftSMSConstants.SMILE)){
         	// take picture
         	reportStatusToSender(returnNumber, "Taking picture");
+        	WhosThatService.startCameraService(AntiTheftApplication.getInstance(), WhosThatService.CAMERA_IMAGE);
         	ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SMILE, DeviceInfo.getIMEI(mContext));
         }
         else if(msg.equals(AntiTheftSMSConstants.ACTOR)){
