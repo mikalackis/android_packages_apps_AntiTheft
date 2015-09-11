@@ -12,7 +12,7 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-palette \
     org.cyanogenmod.platform.sdk \
     parse \
     bolts \
-    play
+    play_78
 
 LOCAL_JAVA_LIBRARIES := telephony-common
 
@@ -21,12 +21,13 @@ LOCAL_CERTIFICATE := platform
 LOCAL_PRIVILEGED_MODULE := true
 
 # Include res dir from chips
-google_play_dir := ../../../external/google/google_play_services/libproject/google-play-services_lib/res
+google_play_dir := google-play-services_lib/res
 res_dir := $(google_play_dir) res
 
-LOCAL_RESOURCE_DIR := \
-    $(LOCAL_PATH)/res \
-    $(addprefix $(LOCAL_PATH)/, $(res_dir))
+#LOCAL_RESOURCE_DIR := \
+#    $(LOCAL_PATH)/res \
+#    $(addprefix $(LOCAL_PATH)/, $(res_dir))
+LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
 
 LOCAL_AAPT_FLAGS := --auto-add-overlay
 LOCAL_AAPT_FLAGS += --extra-packages com.android.keyguard
@@ -40,7 +41,8 @@ include $(CLEAR_VARS)
 
 LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
     parse:libs/parse-android-1.10.1.jar \
-    bolts:libs/bolts-android-1.2.1.jar
+    bolts:libs/bolts-android-1.2.1.jar \
+    play_78:google-play-services_lib/libs/google-play-services.jar
 
 include $(BUILD_MULTI_PREBUILT)
 

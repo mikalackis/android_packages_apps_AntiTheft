@@ -19,11 +19,20 @@ package com.android.antitheft.services;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
+
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationServices;
+
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
+
+//import com.google.android.gms.common.GooglePlayServicesClient;
+//import com.google.android.gms.location.LocationClient;
+//
+//
 
 import android.accounts.Account;
 import android.app.Service;
@@ -42,7 +51,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class DeviceFinderService extends Service implements LocationListener,
-        GooglePlayServicesClient.ConnectionCallbacks,  GooglePlayServicesClient.OnConnectionFailedListener{
+         ConnectionCallbacks,  OnConnectionFailedListener{
 
     private static final String TAG = DeviceFinderService.class.getSimpleName();
     
@@ -60,7 +69,7 @@ public class DeviceFinderService extends Service implements LocationListener,
     private static final int LOCATION_ACCURACY_THRESHOLD = 5; //meters
     private boolean mConstantReporting = false;
 
-    private LocationClient mLocationClient;
+    protected GoogleApiClient mGoogleApiClient;
     private Location mLastLocationUpdate;
     private String mKeyId;
 
@@ -105,15 +114,30 @@ public class DeviceFinderService extends Service implements LocationListener,
             if(state == Config.ANTITHEFT_STATE.LOCKDOWN.getState()){
             	mConstantReporting = true;
             }
-            mLocationClient = new LocationClient(context, this, this);
-            mLocationClient.connect();
+            
+//            mLocationClient = new LocationClient(context, this, this);
+//            mLocationClient.connect();
+            buildGoogleApiClient();
         }
 
-        if (mLocationClient.isConnected()) {
+        if (mGoogleApiClient.isConnected()) {
             restartLocationUpdates();
         }
 
         return START_STICKY;
+    }
+    
+
+    /**
+     * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
     }
 
     private LocationRequest getLocationRequest() {
@@ -128,11 +152,12 @@ public class DeviceFinderService extends Service implements LocationListener,
 
     private void restartLocationUpdates() {
         mUpdateCount = 0;
-        Location lastLocation = mLocationClient.getLastLocation();
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (lastLocation != null) {
             onLocationChanged(lastLocation, true);
         }
-        mLocationClient.requestLocationUpdates(getLocationRequest(), this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, getLocationRequest(), this);
     }
 
     @Override
@@ -146,6 +171,7 @@ public class DeviceFinderService extends Service implements LocationListener,
         }
         Log.i(TAG,"end onDestroy");
         mIsRunning = false;
+        mGoogleApiClient.disconnect();
     }
 
     @Override
@@ -169,12 +195,16 @@ public class DeviceFinderService extends Service implements LocationListener,
     }
 
     @Override
-    public void onDisconnected() {
-    }
-
-    @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         stopSelf();
+    }
+    
+    @Override
+    public void onConnectionSuspended(int cause) {
+        // The connection to Google Play services was lost for some reason. We call connect() to
+        // attempt to re-establish the connection.
+        Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
     }
 
     private void maybeStopLocationUpdates(float accuracy) {
@@ -185,8 +215,7 @@ public class DeviceFinderService extends Service implements LocationListener,
     }
 
     public void stopUpdates() {
-        mLocationClient.removeLocationUpdates(this);
-        mLocationClient.disconnect();
+    	LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         stopSelf();
     }
     
