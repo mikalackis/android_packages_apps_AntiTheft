@@ -41,9 +41,9 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
     public static interface OnSwitchChangeListener {
         /**
          * Called when the checked state of the Switch has changed.
-         *
+         * 
          * @param switchView The Switch view whose state has changed.
-         * @param isChecked  The new checked state of switchView.
+         * @param isChecked The new checked state of switchView.
          */
         void onSwitchChanged(Switch switchView, boolean isChecked);
     }
@@ -57,8 +57,8 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
     private ArrayList<OnSwitchChangeListener> mSwitchChangeListeners =
             new ArrayList<OnSwitchChangeListener>();
 
-//    private static int[] MARGIN_ATTRIBUTES = {
-//            R.attr.switchBarMarginStart, R.attr.switchBarMarginEnd};
+    // private static int[] MARGIN_ATTRIBUTES = {
+    // R.attr.switchBarMarginStart, R.attr.switchBarMarginEnd};
 
     public SwitchBar(Context context) {
         this(context, null);
@@ -77,10 +77,10 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
 
         LayoutInflater.from(context).inflate(R.layout.switch_bar, this);
 
-        //final TypedArray a = context.obtainStyledAttributes(attrs, MARGIN_ATTRIBUTES);
-        int switchBarMarginStart = 0;//(int) a.getDimension(0, 0);
-        int switchBarMarginEnd = 0;//(int) a.getDimension(1, 0);
-        //a.recycle();
+        // final TypedArray a = context.obtainStyledAttributes(attrs, MARGIN_ATTRIBUTES);
+        int switchBarMarginStart = 0;// (int) a.getDimension(0, 0);
+        int switchBarMarginEnd = 0;// (int) a.getDimension(1, 0);
+        // a.recycle();
 
         mTextView = (TextView) findViewById(R.id.switch_text);
         mTextView.setText(R.string.switch_off_text);
@@ -208,8 +208,8 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
          */
         private SavedState(Parcel in) {
             super(in);
-            checked = (Boolean)in.readValue(null);
-            visible = (Boolean)in.readValue(null);
+            checked = (Boolean) in.readValue(null);
+            visible = (Boolean) in.readValue(null);
             resOnLabel = in.readInt();
             resOffLabel = in.readInt();
         }
@@ -234,8 +234,7 @@ public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedC
                     + "}";
         }
 
-        public static final Parcelable.Creator<SavedState> CREATOR
-                = new Parcelable.Creator<SavedState>() {
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
             public SavedState createFromParcel(Parcel in) {
                 return new SavedState(in);
             }

@@ -34,54 +34,56 @@ import com.parse.Parse;
 public class AntiTheftApplication extends Application {
 
     private static final String TAG = "AntiTheftApplication";
-    
+
     private static AntiTheftApplication mInstance;
 
-    public static AntiTheftApplication getInstance(){
-    	return mInstance;
+    public static AntiTheftApplication getInstance() {
+        return mInstance;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
         Log.i(TAG, "AntiTheft app created");
-        
+
         mInstance = this;
-        
+
         PrefUtils.init(this);
-        
-        Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD", "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
-        
-        if(!PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT, false)){
-        	AntiTheftSecurityHelper.copyFilesToSDCard();
+
+        Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD",
+                "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
+
+        if (!PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
+                false)) {
+            AntiTheftSecurityHelper.copyFilesToSDCard();
         }
-        
-        if(Config.DEBUG){
-        	Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+
+        if (Config.DEBUG) {
+            Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         }
-        
+
     }
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
     }
-    
-    public void stopTracking(){
-    	Intent intent = new Intent(this, DeviceFinderService.class);
-    	ServiceConnection mConnection = new ServiceConnection() {
-			
-    		@Override
-			public void onServiceDisconnected(ComponentName name) {
-				
-			}
-			
-			@Override
-			public void onServiceConnected(ComponentName name, IBinder service) {
-				DeviceFinderServiceBinder mBinder = (DeviceFinderServiceBinder) service;
-				DeviceFinderService mService = mBinder.getService();
-				mService.stopUpdates();
-			}
-		};
+
+    public void stopTracking() {
+        Intent intent = new Intent(this, DeviceFinderService.class);
+        ServiceConnection mConnection = new ServiceConnection() {
+
+            @Override
+            public void onServiceDisconnected(ComponentName name) {
+
+            }
+
+            @Override
+            public void onServiceConnected(ComponentName name, IBinder service) {
+                DeviceFinderServiceBinder mBinder = (DeviceFinderServiceBinder) service;
+                DeviceFinderService mService = mBinder.getService();
+                mService.stopUpdates();
+            }
+        };
         bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 

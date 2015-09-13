@@ -1,4 +1,5 @@
 /*AntiTheftService.java */
+
 package com.android.antitheft;
 
 import android.app.Service;
@@ -12,14 +13,15 @@ import android.widget.Toast;
 
 public class AntiTheftService extends Service {
     private static final String TAG = "AntiTheftService";
-    
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-        	try {
+            try {
                 if (msg.what == 0) {
                     Log.i(TAG, "set message received: " + msg.arg1);
-                    Toast.makeText(AntiTheftService.this, "Starting photo service "+msg.arg1, Toast.LENGTH_LONG).show();
+                    Toast.makeText(AntiTheftService.this, "Starting photo service " + msg.arg1,
+                            Toast.LENGTH_LONG).show();
                 }
             } catch (Exception e) {
                 // Log, don't crash!
@@ -32,5 +34,5 @@ public class AntiTheftService extends Service {
     public IBinder onBind(Intent intent) {
         return new Messenger(mHandler).getBinder();
     }
-   
+
 }

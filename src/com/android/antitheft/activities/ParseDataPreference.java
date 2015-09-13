@@ -47,18 +47,18 @@ public class ParseDataPreference extends EditTextPreference {
     public ParseDataPreference(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-//        // determine the default hostname
-//        String id = Settings.Secure.getString(getContext().getContentResolver(),
-//                Settings.Secure.ANDROID_ID);
-//        if (id != null && id.length() > 0) {
-//            DEFAULT_HOSTNAME =  "android-".concat(id);
-//        } else {
-//            DEFAULT_HOSTNAME = "";
-//        }
-//
-//        setSummary(getText());
-//        getEditText().setFilters(new InputFilter[] { mHostnameInputFilter });
-//        getEditText().setHint(DEFAULT_HOSTNAME);
+        // // determine the default hostname
+        // String id = Settings.Secure.getString(getContext().getContentResolver(),
+        // Settings.Secure.ANDROID_ID);
+        // if (id != null && id.length() > 0) {
+        // DEFAULT_HOSTNAME = "android-".concat(id);
+        // } else {
+        // DEFAULT_HOSTNAME = "";
+        // }
+        //
+        // setSummary(getText());
+        // getEditText().setFilters(new InputFilter[] { mHostnameInputFilter });
+        // getEditText().setHint(DEFAULT_HOSTNAME);
     }
 
     public ParseDataPreference(Context context, AttributeSet attrs) {
@@ -74,21 +74,21 @@ public class ParseDataPreference extends EditTextPreference {
         if (positiveResult) {
             String hostname = getEditText().getText().toString();
 
-//            // remove any preceding or succeeding periods or hyphens
-//            hostname = hostname.replaceAll("(?:\\.|-)+$", "");
-//            hostname = hostname.replaceAll("^(?:\\.|-)+", "");
-//
-//            if (hostname.length() == 0) {
-//                if (DEFAULT_HOSTNAME.length() != 0) {
-//                    // if no hostname is given, use the default
-//                    hostname = DEFAULT_HOSTNAME;
-//                } else {
-//                    // if no other name can be determined
-//                    // fall back on the current hostname
-//                    hostname = getText();
-//                }
-//            }
-//            setText(hostname);
+            // // remove any preceding or succeeding periods or hyphens
+            // hostname = hostname.replaceAll("(?:\\.|-)+$", "");
+            // hostname = hostname.replaceAll("^(?:\\.|-)+", "");
+            //
+            // if (hostname.length() == 0) {
+            // if (DEFAULT_HOSTNAME.length() != 0) {
+            // // if no hostname is given, use the default
+            // hostname = DEFAULT_HOSTNAME;
+            // } else {
+            // // if no other name can be determined
+            // // fall back on the current hostname
+            // hostname = getText();
+            // }
+            // }
+            // setText(hostname);
         }
     }
 
@@ -102,14 +102,14 @@ public class ParseDataPreference extends EditTextPreference {
         } else {
             Log.i(TAG, "hostname has been set: " + text);
         }
-//        SystemProperties.set(PROP_HOSTNAME, text);
-//        persistHostname(text);
-//        setSummary(text);
+        // SystemProperties.set(PROP_HOSTNAME, text);
+        // persistHostname(text);
+        // setSummary(text);
     }
 
     @Override
     public String getText() {
-        return "";//SystemProperties.get(PROP_HOSTNAME);
+        return "";// SystemProperties.get(PROP_HOSTNAME);
     }
 
     @Override

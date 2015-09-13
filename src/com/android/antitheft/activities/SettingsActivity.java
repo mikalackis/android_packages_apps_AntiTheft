@@ -35,23 +35,23 @@ import android.preference.PreferenceScreen;
 public class SettingsActivity extends Activity {
 
     private static final String LOG_TAG = "SettingsActivity";
-    
+
     private SwitchBar mSwitchBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // TODO Auto-generated method stub
         super.onCreate(savedInstanceState);
-        
+
         setContentView(R.layout.settings_main_prefs);
-        
+
         mSwitchBar = (SwitchBar) findViewById(R.id.switch_bar);
         getFragmentManager().beginTransaction().replace(R.id.main_content,
-                   new AntiTheftPreferences()).commit();
+                new AntiTheftPreferences()).commit();
     }
-    
+
     public SwitchBar getSwitchBar() {
         return mSwitchBar;
     }
-   
+
 }

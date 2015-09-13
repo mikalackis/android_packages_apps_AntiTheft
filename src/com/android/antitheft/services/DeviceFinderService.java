@@ -51,13 +51,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class DeviceFinderService extends Service implements LocationListener,
-         ConnectionCallbacks,  OnConnectionFailedListener{
+        ConnectionCallbacks, OnConnectionFailedListener {
 
     private static final String TAG = DeviceFinderService.class.getSimpleName();
-    
+
     // Binder given to clients
     private final IBinder mBinder = new DeviceFinderServiceBinder();
-    
+
     private static PowerManager.WakeLock sWakeLock;
 
     private static final String EXTRA_ACCOUNT = "account";
@@ -66,7 +66,7 @@ public class DeviceFinderService extends Service implements LocationListener,
 
     private static final int LOCATION_UPDATE_INTERVAL = 5000;
     private static final int MAX_LOCATION_UPDATES = 1;
-    private static final int LOCATION_ACCURACY_THRESHOLD = 5; //meters
+    private static final int LOCATION_ACCURACY_THRESHOLD = 5; // meters
     private boolean mConstantReporting = false;
 
     protected GoogleApiClient mGoogleApiClient;
@@ -103,20 +103,22 @@ public class DeviceFinderService extends Service implements LocationListener,
             mIsRunning = true;
             final ContentResolver contentResolver = getContentResolver();
             try {
-                int currentLocationMode = Settings.Secure.getInt(contentResolver, Settings.Secure.LOCATION_MODE);
+                int currentLocationMode = Settings.Secure.getInt(contentResolver,
+                        Settings.Secure.LOCATION_MODE);
                 if (currentLocationMode != Settings.Secure.LOCATION_MODE_HIGH_ACCURACY) {
-                    Settings.Secure.putInt(contentResolver, Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_HIGH_ACCURACY);
+                    Settings.Secure.putInt(contentResolver, Settings.Secure.LOCATION_MODE,
+                            Settings.Secure.LOCATION_MODE_HIGH_ACCURACY);
                 }
             } catch (SettingNotFoundException e) {
-            	Log.e(TAG, "Unable find location settings.", e);
+                Log.e(TAG, "Unable find location settings.", e);
             }
             int state = intent.getIntExtra(EXTRA_STATE, Config.ANTITHEFT_STATE.NORMAL.getState());
-            if(state == Config.ANTITHEFT_STATE.LOCKDOWN.getState()){
-            	mConstantReporting = true;
+            if (state == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
+                mConstantReporting = true;
             }
-            
-//            mLocationClient = new LocationClient(context, this, this);
-//            mLocationClient.connect();
+
+            // mLocationClient = new LocationClient(context, this, this);
+            // mLocationClient.connect();
             buildGoogleApiClient();
         }
 
@@ -126,7 +128,6 @@ public class DeviceFinderService extends Service implements LocationListener,
 
         return START_STICKY;
     }
-    
 
     /**
      * Builds a GoogleApiClient. Uses the addApi() method to request the LocationServices API.
@@ -141,13 +142,13 @@ public class DeviceFinderService extends Service implements LocationListener,
     }
 
     private LocationRequest getLocationRequest() {
-    	LocationRequest lr=LocationRequest.create()
+        LocationRequest lr = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(LOCATION_UPDATE_INTERVAL);
-    	if(mConstantReporting){
-    		lr.setNumUpdates(MAX_LOCATION_UPDATES);
-    	}
-    	return lr;
+        if (mConstantReporting) {
+            lr.setNumUpdates(MAX_LOCATION_UPDATES);
+        }
+        return lr;
     }
 
     private void restartLocationUpdates() {
@@ -163,13 +164,13 @@ public class DeviceFinderService extends Service implements LocationListener,
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG,"onDestroy");
+        Log.i(TAG, "onDestroy");
         if (sWakeLock != null) {
-        	Log.i(TAG,"sWakeLock existing");
-        	Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "sWakeLock existing");
+            Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
             sWakeLock.release();
         }
-        Log.i(TAG,"end onDestroy");
+        Log.i(TAG, "end onDestroy");
         mIsRunning = false;
         mGoogleApiClient.disconnect();
     }
@@ -181,8 +182,10 @@ public class DeviceFinderService extends Service implements LocationListener,
 
     private void onLocationChanged(final Location location, boolean fromLastLocation) {
         mLastLocationUpdate = location;
-        if (!fromLastLocation) mUpdateCount++;
-        ParseHelper.initializeLocationParseObject(DeviceInfo.getIMEI(this), location.getLatitude(), location.getLongitude()).saveInBackground();
+        if (!fromLastLocation)
+            mUpdateCount++;
+        ParseHelper.initializeLocationParseObject(DeviceInfo.getIMEI(this), location.getLatitude(),
+                location.getLongitude()).saveInBackground();
         if (mLastLocationUpdate != null) {
             maybeStopLocationUpdates(mLastLocationUpdate.getAccuracy());
         }
@@ -198,7 +201,7 @@ public class DeviceFinderService extends Service implements LocationListener,
     public void onConnectionFailed(ConnectionResult connectionResult) {
         stopSelf();
     }
-    
+
     @Override
     public void onConnectionSuspended(int cause) {
         // The connection to Google Play services was lost for some reason. We call connect() to
@@ -208,20 +211,23 @@ public class DeviceFinderService extends Service implements LocationListener,
     }
 
     private void maybeStopLocationUpdates(float accuracy) {
-        // if mUpdateCount, then this is a case we have the last known location. Don't stop in that case.
-        if (!mConstantReporting && (mUpdateCount != 0) && (accuracy <= LOCATION_ACCURACY_THRESHOLD || mUpdateCount == MAX_LOCATION_UPDATES)) {
+        // if mUpdateCount, then this is a case we have the last known location. Don't stop in that
+        // case.
+        if (!mConstantReporting
+                && (mUpdateCount != 0)
+                && (accuracy <= LOCATION_ACCURACY_THRESHOLD || mUpdateCount == MAX_LOCATION_UPDATES)) {
             stopUpdates();
         }
     }
 
     public void stopUpdates() {
-    	LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         stopSelf();
     }
-    
+
     /**
-     * Class used for the client Binder.  Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
+     * Class used for the client Binder. Because we know this service always runs in the same
+     * process as its clients, we don't need to deal with IPC.
      */
     public class DeviceFinderServiceBinder extends Binder {
         public DeviceFinderService getService() {

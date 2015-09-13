@@ -1,3 +1,4 @@
+
 package com.android.antitheft.receivers;
 
 import java.io.BufferedReader;
@@ -22,19 +23,21 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class AntiTheftBootReceiver extends BroadcastReceiver {
-	
-	private static final String TAG = "AntiTheftApplication";
+
+    private static final String TAG = "AntiTheftApplication";
 
     @Override
     public void onReceive(Context context, Intent intent) {
-    	Log.i(TAG, "Boot received, should send data ");
-        ParseHelper.initializeActivityParseObject("AntiTheft online", DeviceInfo.getIMEI(context)).saveEventually();
-        int mCurrentState  = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE, Config.ANTITHEFT_STATE.NORMAL.getState());
-        if(mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()){
-        	LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS, context);
-        	// should start camera service
+        Log.i(TAG, "Boot received, should send data ");
+        ParseHelper.initializeActivityParseObject("AntiTheft online", DeviceInfo.getIMEI(context))
+                .saveEventually();
+        int mCurrentState = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
+                Config.ANTITHEFT_STATE.NORMAL.getState());
+        if (mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
+            LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS, context);
+            // should start camera service
         }
         DeviceFinderService.reportLocation(AntiTheftApplication.getInstance(), mCurrentState);
     }
-    
+
 }

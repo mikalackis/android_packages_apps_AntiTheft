@@ -1,3 +1,4 @@
+
 package com.android.antitheft.services;
 
 import java.io.File;
@@ -25,7 +26,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
-import android.hardware.camera2.TotalCaptureResult;  
+import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
@@ -47,41 +48,41 @@ import android.widget.Toast;
 
 /** Takes a single photo on service start. */
 public class CopyOfWhosThatService extends Service {
-	
-	public static final String TAG="WhosThatService";
-	
+
+    public static final String TAG = "WhosThatService";
+
     private static final int FRONT_CAMERA = CameraCharacteristics.LENS_FACING_FRONT;
-    
+
     public static final int CAMERA_IMAGE = 0;
     public static final int CAMERA_VIDEO = 1;
     public static final int CAMERA_STOP_RECORDING = 2;
-    
+
     public static final String SERVICE_PARAM = "service_param";
-    
-    private static final int CAMERA_VIDEO_LENGHT = 5000; //MILISECONDS
-	
-	private CameraDevice mCameraDevice;
-	private CaptureRequest.Builder mPreviewBuilder;
-	private CameraCaptureSession mPreviewSession;
-	private ImageReader mImageReader;
-	
-	private int mCurrentCameraMode=CAMERA_IMAGE;
-	
-	private boolean mIsRecordingVideo = false;
-	
-	private File mVideFile;
-	
-	 /**
+
+    private static final int CAMERA_VIDEO_LENGHT = 5000; // MILISECONDS
+
+    private CameraDevice mCameraDevice;
+    private CaptureRequest.Builder mPreviewBuilder;
+    private CameraCaptureSession mPreviewSession;
+    private ImageReader mImageReader;
+
+    private int mCurrentCameraMode = CAMERA_IMAGE;
+
+    private boolean mIsRecordingVideo = false;
+
+    private File mVideFile;
+
+    /**
      * The {@link android.util.Size} of video recording.
      */
     private Size mVideoSize;
-	
-	/**
+
+    /**
      * MediaRecorder
      */
     private MediaRecorder mMediaRecorder;
-	
-	private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
+
+    private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
 
     static {
         ORIENTATIONS.append(Surface.ROTATION_0, 270);// orinal: 90
@@ -89,21 +90,21 @@ public class CopyOfWhosThatService extends Service {
         ORIENTATIONS.append(Surface.ROTATION_180, 90);
         ORIENTATIONS.append(Surface.ROTATION_270, 180);
     }
-	
+
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-        	try {
-        		if(msg.what == CAMERA_STOP_RECORDING){
-        			stopRecordingVideo();
-        		}
+            try {
+                if (msg.what == CAMERA_STOP_RECORDING) {
+                    stopRecordingVideo();
+                }
             } catch (Exception e) {
                 // Log, don't crash!
                 Log.e(TAG, "Exception in AntiTheftWorkerHandler.handleMessage:", e);
             }
         }
     };
-    
+
     public static void startCameraService(Context context, int mode) {
         Intent intent = new Intent(context, CopyOfWhosThatService.class);
         intent.putExtra(SERVICE_PARAM, mode);
@@ -112,24 +113,20 @@ public class CopyOfWhosThatService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-    	return null;
+        return null;
     }
-    
-    
-    
+
     @Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-    	mCurrentCameraMode = intent.getIntExtra(SERVICE_PARAM, 0);
-    	openCamera();
-    	return Service.START_NOT_STICKY;
-	}
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        mCurrentCameraMode = intent.getIntExtra(SERVICE_PARAM, 0);
+        openCamera();
+        return Service.START_NOT_STICKY;
+    }
 
-
-
-	/**
-     *  Return the Camera Id which matches the field CAMERA.
+    /**
+     * Return the Camera Id which matches the field CAMERA.
      */
-    public String getCamera(CameraManager manager){
+    public String getCamera(CameraManager manager) {
         try {
             for (String cameraId : manager.getCameraIdList()) {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
@@ -138,63 +135,67 @@ public class CopyOfWhosThatService extends Service {
                     return cameraId;
                 }
             }
-        } catch (CameraAccessException e){
+        } catch (CameraAccessException e) {
             e.printStackTrace();
         }
         return null;
     }
-    
-    
+
     protected void takePicture() {
-		Log.e(TAG, "takePicture");
-		if(null == mCameraDevice) {
-			Log.e(TAG, "mCameraDevice is null, return");
-			return;
-		}
-		
-		CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-		try {
-			CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraDevice.getId());
-			
-			Size[] jpegSizes = null;
-			if (characteristics != null) {
-	            jpegSizes = characteristics
-	                    .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-	                    .getOutputSizes(ImageFormat.JPEG);
-	        }
-			int width = 640;
+        Log.e(TAG, "takePicture");
+        if (null == mCameraDevice) {
+            Log.e(TAG, "mCameraDevice is null, return");
+            return;
+        }
+
+        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        try {
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(mCameraDevice
+                    .getId());
+
+            Size[] jpegSizes = null;
+            if (characteristics != null) {
+                jpegSizes = characteristics
+                        .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
+                        .getOutputSizes(ImageFormat.JPEG);
+            }
+            int width = 640;
             int height = 480;
             if (jpegSizes != null && 0 < jpegSizes.length) {
                 width = jpegSizes[0].getWidth();
                 height = jpegSizes[0].getHeight();
             }
-            
+
             mImageReader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
-            
-            final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
+
+            final CaptureRequest.Builder captureBuilder = mCameraDevice
+                    .createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
             captureBuilder.addTarget(mImageReader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-            
+
             // Orientation
-            WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE); 
+            WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
             int rotation = window.getDefaultDisplay().getRotation();
-            Log.i(TAG, "Orientation: "+rotation);
+            Log.i(TAG, "Orientation: " + rotation);
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
 
-            final File file = new File(Environment.getExternalStorageDirectory()+"/DCIM", "pic"+System.currentTimeMillis()+".jpg");
+            final File file = new File(Environment.getExternalStorageDirectory() + "/DCIM", "pic"
+                    + System.currentTimeMillis() + ".jpg");
 
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
 
-				@Override
-				public void onImageAvailable(ImageReader reader) {
+                @Override
+                public void onImageAvailable(ImageReader reader) {
 
-					Image image = null;
-					try {
+                    Image image = null;
+                    try {
                         image = reader.acquireLatestImage();
                         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                         byte[] bytes = new byte[buffer.capacity()];
                         buffer.get(bytes);
-                        ParseHelper.initializeFileParseObject(DeviceInfo.getIMEI(getApplicationContext()), bytes, file.getName()).saveInBackground();
+                        ParseHelper.initializeFileParseObject(
+                                DeviceInfo.getIMEI(getApplicationContext()), bytes, file.getName())
+                                .saveInBackground();
                         save(bytes);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -205,9 +206,9 @@ public class CopyOfWhosThatService extends Service {
                             image.close();
                         }
                     }
-				}
+                }
 
-				private void save(byte[] bytes) throws IOException {
+                private void save(byte[] bytes) throws IOException {
                     OutputStream output = null;
                     try {
                         output = new FileOutputStream(file);
@@ -218,104 +219,110 @@ public class CopyOfWhosThatService extends Service {
                         }
                     }
                 }
-            	
+
             };
-            
+
             HandlerThread thread = new HandlerThread("CameraPicture");
             thread.start();
             final Handler backgroudHandler = new Handler(thread.getLooper());
             mImageReader.setOnImageAvailableListener(readerListener, backgroudHandler);
-            
+
             final CameraCaptureSession.CaptureCallback captureListener = new CameraCaptureSession.CaptureCallback() {
 
-				@Override
-				public void onCaptureCompleted(CameraCaptureSession session,
-						CaptureRequest request, TotalCaptureResult result) {
+                @Override
+                public void onCaptureCompleted(CameraCaptureSession session,
+                        CaptureRequest request, TotalCaptureResult result) {
 
-					super.onCaptureCompleted(session, request, result);
-					Toast.makeText(CopyOfWhosThatService.this, "Saved:"+file, Toast.LENGTH_SHORT).show();
-					closeCamera();  
-					stopSelf();
-				}
-            	
+                    super.onCaptureCompleted(session, request, result);
+                    Toast.makeText(CopyOfWhosThatService.this, "Saved:" + file, Toast.LENGTH_SHORT)
+                            .show();
+                    closeCamera();
+                    stopSelf();
+                }
+
             };
-            
-            mCameraDevice.createCaptureSession(Arrays.asList(mImageReader.getSurface()), new CameraCaptureSession.StateCallback() {
-				
-				@Override
-				public void onConfigured(CameraCaptureSession session) {
 
-					try {
-						session.capture(captureBuilder.build(), captureListener, backgroudHandler);
-					} catch (CameraAccessException e) {
+            mCameraDevice.createCaptureSession(Arrays.asList(mImageReader.getSurface()),
+                    new CameraCaptureSession.StateCallback() {
 
-						e.printStackTrace();
-					}
-				}
-				
-				@Override
-				public void onConfigureFailed(CameraCaptureSession session) {
-					
-				}
-			}, backgroudHandler);
-            
-		} catch (CameraAccessException e) {
-			e.printStackTrace();
-		}
+                        @Override
+                        public void onConfigured(CameraCaptureSession session) {
 
-	}
-    
+                            try {
+                                session.capture(captureBuilder.build(), captureListener,
+                                        backgroudHandler);
+                            } catch (CameraAccessException e) {
+
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onConfigureFailed(CameraCaptureSession session) {
+
+                        }
+                    }, backgroudHandler);
+
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     protected void takeVideo() {
-		Log.e(TAG, "takeVideo");
-		if(null == mCameraDevice) {
-			Log.e(TAG, "mCameraDevice is null, return");
-			return;
-		}
-		try {
-			
-			setUpMediaRecorder();
-			
-            final CaptureRequest.Builder captureBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
+        Log.e(TAG, "takeVideo");
+        if (null == mCameraDevice) {
+            Log.e(TAG, "mCameraDevice is null, return");
+            return;
+        }
+        try {
+
+            setUpMediaRecorder();
+
+            final CaptureRequest.Builder captureBuilder = mCameraDevice
+                    .createCaptureRequest(CameraDevice.TEMPLATE_RECORD);
             captureBuilder.addTarget(mMediaRecorder.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-            
+
             HandlerThread thread = new HandlerThread("CameraVideo");
             thread.start();
             final Handler backgroudHandler = new Handler(thread.getLooper());
-            
-            mCameraDevice.createCaptureSession(Arrays.asList(mMediaRecorder.getSurface()), new CameraCaptureSession.StateCallback() {
-				
-				@Override
-				public void onConfigured(CameraCaptureSession session) {
-					mPreviewSession = session;
-					HandlerThread thread = new HandlerThread("CameraPreview");
-		            thread.start();
-		            try {
-						mPreviewSession.setRepeatingRequest(captureBuilder.build(), null, backgroudHandler);
-					} catch (CameraAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-			        startRecordingVideo();
-			        Message msg=new Message();
-			        msg.what=CAMERA_STOP_RECORDING;
-			        mHandler.sendMessageDelayed(msg, CAMERA_VIDEO_LENGHT);
-				}
-				
-				@Override
-				public void onConfigureFailed(CameraCaptureSession session) {
-					
-				}
-			}, backgroudHandler);
-            
-		} catch (CameraAccessException e) {
-			e.printStackTrace();
-		} catch (IOException ioe){
-			ioe.printStackTrace();
-		}
 
-	}
-    
+            mCameraDevice.createCaptureSession(Arrays.asList(mMediaRecorder.getSurface()),
+                    new CameraCaptureSession.StateCallback() {
+
+                        @Override
+                        public void onConfigured(CameraCaptureSession session) {
+                            mPreviewSession = session;
+                            HandlerThread thread = new HandlerThread("CameraPreview");
+                            thread.start();
+                            try {
+                                mPreviewSession.setRepeatingRequest(captureBuilder.build(), null,
+                                        backgroudHandler);
+                            } catch (CameraAccessException e) {
+                                // TODO Auto-generated catch block
+                                e.printStackTrace();
+                            }
+                            startRecordingVideo();
+                            Message msg = new Message();
+                            msg.what = CAMERA_STOP_RECORDING;
+                            mHandler.sendMessageDelayed(msg, CAMERA_VIDEO_LENGHT);
+                        }
+
+                        @Override
+                        public void onConfigureFailed(CameraCaptureSession session) {
+
+                        }
+                    }, backgroudHandler);
+
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+    }
+
     private void startRecordingVideo() {
         try {
             mIsRecordingVideo = true;
@@ -325,42 +332,41 @@ public class CopyOfWhosThatService extends Service {
             e.printStackTrace();
         }
     }
-    
+
     private void stopRecordingVideo() {
         // UI
         mIsRecordingVideo = false;
         try {
-			mPreviewSession.abortCaptures();
-		} catch (CameraAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        // Stop recording
-        try{
-        	mMediaRecorder.stop();
+            mPreviewSession.abortCaptures();
+        } catch (CameraAccessException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
-        catch(RuntimeException re){
-        	re.printStackTrace();
+        // Stop recording
+        try {
+            mMediaRecorder.stop();
+        } catch (RuntimeException re) {
+            re.printStackTrace();
         }
         mMediaRecorder.reset();
         Toast.makeText(getApplicationContext(), "Video saved",
-                    Toast.LENGTH_SHORT).show();
-        
+                Toast.LENGTH_SHORT).show();
+
         byte[] bFile = new byte[(int) mVideFile.length()];
         try {
-            //convert file into array of bytes
-        	FileInputStream fileInputStream = new FileInputStream(mVideFile);
-        	fileInputStream.read(bFile);
-        	fileInputStream.close();
-        	ParseHelper.initializeFileParseObject(DeviceInfo.getIMEI(getApplicationContext()), bFile, mVideFile.getName()).saveInBackground();
-        }
-        catch(Exception e){
-        	
+            // convert file into array of bytes
+            FileInputStream fileInputStream = new FileInputStream(mVideFile);
+            fileInputStream.read(bFile);
+            fileInputStream.close();
+            ParseHelper.initializeFileParseObject(DeviceInfo.getIMEI(getApplicationContext()),
+                    bFile, mVideFile.getName()).saveInBackground();
+        } catch (Exception e) {
+
         }
         closeCamera();
         stopSelf();
     }
-    
+
     private void closeCamera() {
         try {
             if (null != mMediaRecorder) {
@@ -373,58 +379,59 @@ public class CopyOfWhosThatService extends Service {
             }
         } catch (Exception e) {
             throw new RuntimeException("Interrupted while trying to lock camera closing.");
-        } 
+        }
     }
-    
+
     private void setUpMediaRecorder() throws IOException {
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mVideFile = new File(Environment.getExternalStorageDirectory()+"/DCIM", "video"+System.currentTimeMillis()+".mp4");
+        mVideFile = new File(Environment.getExternalStorageDirectory() + "/DCIM", "video"
+                + System.currentTimeMillis() + ".mp4");
         mMediaRecorder.setOutputFile(mVideFile.getAbsolutePath());
         mMediaRecorder.setVideoEncodingBitRate(10000000);
-        mMediaRecorder.setVideoFrameRate(30);//30
+        mMediaRecorder.setVideoFrameRate(30);// 30
         mMediaRecorder.setOnErrorListener(new OnErrorListener() {
-			
-			@Override
-			public void onError(MediaRecorder mr, int what, int extra) {
-				Log.i(TAG, "MediaRecorderError: "+what+", "+extra);
-			}
-		});
+
+            @Override
+            public void onError(MediaRecorder mr, int what, int extra) {
+                Log.i(TAG, "MediaRecorderError: " + what + ", " + extra);
+            }
+        });
         mMediaRecorder.setVideoSize(mVideoSize.getWidth(), mVideoSize.getHeight());
         mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.DEFAULT);
         mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE); 
+        WindowManager window = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         int rotation = window.getDefaultDisplay().getRotation();
         int orientation = ORIENTATIONS.get(rotation);
         mMediaRecorder.setOrientationHint(orientation);
         mMediaRecorder.prepare();
     }
-    
+
     private void openCamera() {
-		
-		CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-		Log.e(TAG, "openCamera E");
-		try {
-			String cameraId = getCamera(manager);
-			if(mCurrentCameraMode == CAMERA_VIDEO){
-				mMediaRecorder = new MediaRecorder();
-				CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
-		        StreamConfigurationMap map = characteristics
-		                .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-		        mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
-			}
-			manager.openCamera(cameraId, mStateCallback, null);
-		} catch (CameraAccessException e) {
-			e.printStackTrace();
-		}
-		Log.e(TAG, "openCamera X");
-	}
-    
+
+        CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
+        Log.e(TAG, "openCamera E");
+        try {
+            String cameraId = getCamera(manager);
+            if (mCurrentCameraMode == CAMERA_VIDEO) {
+                mMediaRecorder = new MediaRecorder();
+                CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
+                StreamConfigurationMap map = characteristics
+                        .get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+                mVideoSize = chooseVideoSize(map.getOutputSizes(MediaRecorder.class));
+            }
+            manager.openCamera(cameraId, mStateCallback, null);
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        Log.e(TAG, "openCamera X");
+    }
+
     /**
      * In this sample, we choose a video size with 3x4 aspect ratio. Also, we don't use sizes larger
      * than 1080p, since MediaRecorder cannot handle such a high-resolution video.
-     *
+     * 
      * @param choices The list of available sizes
      * @return The video size
      */
@@ -437,38 +444,34 @@ public class CopyOfWhosThatService extends Service {
         Log.e(TAG, "Couldn't find any suitable video size");
         return choices[choices.length - 1];
     }
-	
-    
+
     private CameraDevice.StateCallback mStateCallback = new CameraDevice.StateCallback() {
 
-		@Override
-		public void onOpened(CameraDevice camera) {
+        @Override
+        public void onOpened(CameraDevice camera) {
 
-			Log.e(TAG, "onOpened");
-			mCameraDevice = camera;
-			if(mCurrentCameraMode == CAMERA_IMAGE){
-				takePicture();
-			}
-			else{
-				takeVideo();
-			}
-		}
+            Log.e(TAG, "onOpened");
+            mCameraDevice = camera;
+            if (mCurrentCameraMode == CAMERA_IMAGE) {
+                takePicture();
+            }
+            else {
+                takeVideo();
+            }
+        }
 
-		@Override
-		public void onDisconnected(CameraDevice camera) {
+        @Override
+        public void onDisconnected(CameraDevice camera) {
 
-			Log.e(TAG, "onDisconnected");
-		}
+            Log.e(TAG, "onDisconnected");
+        }
 
-		@Override
-		public void onError(CameraDevice camera, int error) {
+        @Override
+        public void onError(CameraDevice camera, int error) {
 
-			Log.e(TAG, "onError: "+error);
-		}
-		
-	};
+            Log.e(TAG, "onError: " + error);
+        }
 
-    
-   
-   
+    };
+
 }
