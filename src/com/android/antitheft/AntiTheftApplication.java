@@ -68,23 +68,4 @@ public class AntiTheftApplication extends Application {
     public void onConfigurationChanged(Configuration newConfig) {
     }
 
-    public void stopTracking() {
-        Intent intent = new Intent(this, DeviceFinderService.class);
-        ServiceConnection mConnection = new ServiceConnection() {
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-
-            }
-
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-                DeviceFinderServiceBinder mBinder = (DeviceFinderServiceBinder) service;
-                DeviceFinderService mService = mBinder.getService();
-                mService.stopUpdates();
-            }
-        };
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
 }

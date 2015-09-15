@@ -9,6 +9,7 @@ import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.services.DeviceFinderService;
 import com.android.antitheft.services.WhosThatService;
+import com.android.antitheft.services.WhosThatSoundService;
 import com.android.antitheft.services.DeviceFinderService.DeviceFinderServiceBinder;
 import com.android.antitheft.util.PrefUtils;
 
@@ -126,7 +127,7 @@ public class AntiTheftSMSOperator {
         else if (msg.equals(AntiTheftSMSConstants.TALK)) {
             // take picture
             reportStatusToSender(returnNumber, "Recording sound");
-            WhosThatService.startSoundRecordingService(AntiTheftApplication.getInstance());
+            WhosThatSoundService.startSoundRecordingService(AntiTheftApplication.getInstance());
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.TALK,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }
