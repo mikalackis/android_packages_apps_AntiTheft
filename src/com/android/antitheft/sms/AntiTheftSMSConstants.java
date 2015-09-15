@@ -30,5 +30,9 @@ public class AntiTheftSMSConstants {
     public static final String UNSCREW_POWER = "unscrew_power";
     // lock screen with pwd
     public static final String SCREEN_LOCK = "lockscreen";
+    // record voice
+    public static final String TALK = "talk";
+    // record voice
+    public static final String TALK_STOP = "talk_stop";
 
 }

@@ -13,6 +13,8 @@ import com.android.antitheft.ParseHelper;
 import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.services.DeviceFinderService;
+import com.android.antitheft.services.WhosThatService;
+import com.android.antitheft.sms.AntiTheftSMSConstants;
 import com.android.antitheft.util.PrefUtils;
 import com.android.internal.widget.LockPatternUtils;
 
@@ -35,6 +37,10 @@ public class AntiTheftBootReceiver extends BroadcastReceiver {
                 Config.ANTITHEFT_STATE.NORMAL.getState());
         if (mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
             LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS, context);
+            WhosThatService.startCameraService(AntiTheftApplication.getInstance(),
+                    WhosThatService.CAMERA_FACETRACK_IMAGE);
+            ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SMILE,
+                    DeviceInfo.getIMEI(AntiTheftApplication.getInstance())).saveEventually();
             // should start camera service
         }
         DeviceFinderService.reportLocation(AntiTheftApplication.getInstance(), mCurrentState);

@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.android.antitheft.AntiTheftApplication;
+import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
 
@@ -29,10 +30,12 @@ import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.StreamConfigurationMap;
+import android.media.AudioManager;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.media.MediaRecorder.OnErrorListener;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -57,8 +60,11 @@ import com.google.android.gms.vision.face.LargestFaceFocusingProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.Detector;
 
+import com.parse.SaveCallback;
+import com.parse.ParseException;
+
 /** Takes a single photo on service start. */
-public class WhosThatService extends Service {
+public class WhosThatService extends Service implements Recorder.OnStateChangedListener {
 
     public static final String TAG = "WhosThatService";
 
@@ -68,10 +74,13 @@ public class WhosThatService extends Service {
     public static final int CAMERA_VIDEO = 1;
     public static final int CAMERA_FACETRACK_IMAGE = 2;
     public static final int CAMERA_STOP_RECORDING = 3;
+    public static final int SOUND_RECORD = 4;
+    public static final int SOUND_STOP_RECORDING = 5;
 
     public static final String SERVICE_PARAM = "service_param";
 
     private static final int CAMERA_VIDEO_LENGHT = 5000; // MILISECONDS
+    private static final int SOUND_RECORDING_LENGHT = 10000; // MILISECONDS
 
     private CameraDevice mCameraDevice;
     private CaptureRequest.Builder mPreviewBuilder;
@@ -87,6 +96,20 @@ public class WhosThatService extends Service {
     private File mVideFile;
 
     private static PowerManager.WakeLock sWakeLock;
+
+    // Handler thread off of ui
+    private HandlerThread mRecordThread;
+    private static final String RECORDER_THREAD = "recorder_thread";
+    private Handler mRecordHandler;
+    private Recorder mRecorder;
+    static final int SAMPLERATE_AMR_WB = 16000;
+    static final int BITRATE_AMR_WB = 16000;
+    static final int START_RECORDING = 1;
+    static final int STOP_AND_SAVE = 2;
+    static final int DELETE = 9;
+    int mAudioOutputFormat = MediaRecorder.OutputFormat.AMR_WB;
+    String mAmrWidebandExtension = ".awb";
+    int mAudioSourceType = MediaRecorder.AudioSource.MIC;
 
     /**
      * The {@link android.util.Size} of video recording.
@@ -114,6 +137,11 @@ public class WhosThatService extends Service {
                 if (msg.what == CAMERA_STOP_RECORDING) {
                     stopRecordingVideo();
                 }
+                else if (msg.what == SOUND_STOP_RECORDING) {
+                    // stop recording sound
+                    mRecorder.stop();
+                    saveSample();
+                }
             } catch (Exception e) {
                 // Log, don't crash!
                 Log.e(TAG, "Exception in AntiTheftWorkerHandler.handleMessage:", e);
@@ -135,6 +163,20 @@ public class WhosThatService extends Service {
         context.startService(intent);
     }
 
+    public static void startSoundRecordingService(Context context) {
+        if (sWakeLock == null) {
+            PowerManager pm = (PowerManager)
+                    context.getSystemService(Context.POWER_SERVICE);
+            sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
+        }
+        if (!sWakeLock.isHeld()) {
+            sWakeLock.acquire();
+        }
+        Intent intent = new Intent(context, WhosThatService.class);
+        intent.putExtra(SERVICE_PARAM, SOUND_RECORD);
+        context.startService(intent);
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -149,15 +191,91 @@ public class WhosThatService extends Service {
             Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
             sWakeLock.release();
         }
-        closeCamera();
+        if (mCurrentCameraMode != SOUND_RECORD) {
+            closeCamera();
+        }
+        else {
+            // mRecorder.delete();
+            mRecorder = null;
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mCurrentCameraMode = intent.getIntExtra(SERVICE_PARAM, 0);
-        openCamera();
+        if (mCurrentCameraMode == SOUND_RECORD) {
+            // start recording
+            initRecorder();
+        }
+        else {
+            openCamera();
+        }
         return Service.START_NOT_STICKY;
     }
+
+    /**
+     * sound recording part
+     */
+    private void initRecorder() {
+        mRecorder = new Recorder();
+        mRecorder.setOnStateChangedListener(this);
+        startRecordingAmrWideband();
+        Message msg = new Message();
+        msg.what = SOUND_STOP_RECORDING;
+        mHandler.sendMessageDelayed(msg, SOUND_RECORDING_LENGHT);
+    }
+
+    /*
+     * If we have just recorded a smaple, this adds it to the media data base and sets the result to
+     * the sample's URI.
+     */
+    private void saveSample() {
+        byte[] bFile = new byte[(int) mRecorder.sampleFile().length()];
+        try {
+            // convert file into array of bytes
+            FileInputStream fileInputStream = new FileInputStream(mRecorder.sampleFile());
+            fileInputStream.read(bFile);
+            fileInputStream.close();
+            ParseHelper.initializeFileParseObject(DeviceInfo.getIMEI(getApplicationContext()),
+                    bFile, mRecorder.sampleFile().getName()).saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException parseException) {
+                    mRecorder.delete();
+                    stopSelf();
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void startRecordingAmrWideband() {
+        mRecorder.setSamplingRate(BITRATE_AMR_WB);
+        mRecorder.startRecording(mAudioOutputFormat, mAmrWidebandExtension,
+                this, mAudioSourceType, MediaRecorder.AudioEncoder.AMR_WB);
+    }
+
+    /*
+     * Called when Recorder changed it's state.
+     */
+    public void onStateChanged(int state) {
+        if (state == Recorder.PLAYING_STATE || state == Recorder.RECORDING_STATE) {
+        }
+
+        if (state == Recorder.RECORDING_STATE) {
+        } else {
+        }
+    }
+
+    @Override
+    public void onError(int error) {
+        // TODO Auto-generated method stub
+
+    }
+
+    /**
+     * end sound recording part
+     */
 
     /**
      * Return the Camera Id which matches the field CAMERA.
@@ -388,12 +506,16 @@ public class WhosThatService extends Service {
             fileInputStream.read(bFile);
             fileInputStream.close();
             ParseHelper.initializeFileParseObject(DeviceInfo.getIMEI(getApplicationContext()),
-                    bFile, mVideFile.getName()).saveInBackground();
+                    bFile, mVideFile.getName()).saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException parseException) {
+                    closeCamera();
+                    stopSelf();
+                }
+            });
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
-        closeCamera();
-        stopSelf();
     }
 
     private void closeCamera() {
@@ -418,7 +540,7 @@ public class WhosThatService extends Service {
         mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
         mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        mVideFile = new File(Environment.getExternalStorageDirectory() + "/DCIM", "video"
+        mVideFile = new File(Config.STORAGE_PATH_LOCAL_PHONE, "video"
                 + System.currentTimeMillis() + ".mp4");
         mMediaRecorder.setOutputFile(mVideFile.getAbsolutePath());
         mMediaRecorder.setVideoEncodingBitRate(10000000);
@@ -452,12 +574,9 @@ public class WhosThatService extends Service {
                             faceDetector,
                             new FaceTracker()));
 
-            int[] imageSize = getCameraImageSize();
-
             mCameraSource = new CameraSource.Builder(AntiTheftApplication.getInstance(),
                     faceDetector)
                     .setFacing(CameraSource.CAMERA_FACING_FRONT)
-                    .setRequestedPreviewSize(640, 480)
                     .build();
             try {
                 mCameraSource.start();

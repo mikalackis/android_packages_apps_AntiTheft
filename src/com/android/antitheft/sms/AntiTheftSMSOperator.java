@@ -123,6 +123,13 @@ public class AntiTheftSMSOperator {
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.TRACK_ME_STOP,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }
+        else if (msg.equals(AntiTheftSMSConstants.TALK)) {
+            // take picture
+            reportStatusToSender(returnNumber, "Recording sound");
+            WhosThatService.startSoundRecordingService(AntiTheftApplication.getInstance());
+            ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.TALK,
+                    DeviceInfo.getIMEI(mContext)).saveEventually();
+        }
 
     }
 

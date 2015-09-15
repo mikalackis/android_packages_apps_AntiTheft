@@ -1,6 +1,8 @@
 
 package com.android.antitheft;
 
+import android.os.Environment;
+
 /**
  * @author mikalackis
  */
@@ -13,6 +15,9 @@ public class Config {
     public static final String KEY_LAYOUT_NORMAL = "Generic.kl";
 
     public static final String KEY_LAYOUT_SCRAMBLED = "Generic_locked.kl";
+
+    public static final String STORAGE_PATH_LOCAL_PHONE = Environment.getExternalStorageDirectory()
+            .toString() + "/AntiTheft";
 
     public static enum ANTITHEFT_STATE {
         LOCKDOWN(1),
