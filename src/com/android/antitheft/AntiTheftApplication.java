@@ -23,8 +23,12 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.ServiceState;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.android.antitheft.listeners.AntiTheftPhoneStateListener;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.services.DeviceFinderService;
 import com.android.antitheft.services.DeviceFinderService.DeviceFinderServiceBinder;
@@ -61,6 +65,9 @@ public class AntiTheftApplication extends Application {
         if (Config.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         }
+
+        final TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        tm.listen(new AntiTheftPhoneStateListener(), PhoneStateListener.LISTEN_SERVICE_STATE);
 
     }
 
