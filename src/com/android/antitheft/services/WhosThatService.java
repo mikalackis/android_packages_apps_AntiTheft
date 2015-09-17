@@ -60,7 +60,14 @@ import com.google.android.gms.vision.face.LargestFaceFocusingProcessor;
 import com.google.android.gms.vision.Tracker;
 import com.google.android.gms.vision.Detector;
 
-/** Takes a single photo on service start. */
+import com.parse.SaveCallback;
+import com.parse.ParseException;
+
+/**
+ * @author mikalackis Background service for camera operations without preview. Supported modes: 1.
+ *         Capture image as soon as the service starts 2. Capture image only when facetrack detects
+ *         a face 3. Record a video.
+ */
 public class WhosThatService extends Service {
 
     public static final String TAG = "WhosThatService";
