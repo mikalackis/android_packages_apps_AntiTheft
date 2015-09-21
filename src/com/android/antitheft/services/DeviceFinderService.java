@@ -50,19 +50,13 @@ import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
 import android.widget.Toast;
 
-public class DeviceFinderService extends Service implements LocationListener,
+public class DeviceFinderService extends AntiTheftService implements LocationListener,
         ConnectionCallbacks, OnConnectionFailedListener {
 
     private static final String TAG = DeviceFinderService.class.getSimpleName();
 
     // Binder given to clients
     private final IBinder mBinder = new DeviceFinderServiceBinder();
-
-    private static PowerManager.WakeLock sWakeLock;
-
-    private static final String EXTRA_ACCOUNT = "account";
-    private static final String EXTRA_KEY_ID = "key_id";
-    private static final String EXTRA_STATE = "state";
 
     private static final int LOCATION_UPDATE_INTERVAL = 5000;
     private static final int MAX_LOCATION_UPDATES = 1;
@@ -76,20 +70,6 @@ public class DeviceFinderService extends Service implements LocationListener,
     private int mUpdateCount = 0;
 
     private boolean mIsRunning = false;
-
-    public static void reportLocation(Context context, int state) {
-        if (sWakeLock == null) {
-            PowerManager pm = (PowerManager)
-                    context.getSystemService(Context.POWER_SERVICE);
-            sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        }
-        if (!sWakeLock.isHeld()) {
-            sWakeLock.acquire();
-        }
-        Intent intent = new Intent(context, DeviceFinderService.class);
-        intent.putExtra(EXTRA_STATE, state);
-        context.startService(intent);
-    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -112,7 +92,7 @@ public class DeviceFinderService extends Service implements LocationListener,
             } catch (SettingNotFoundException e) {
                 Log.e(TAG, "Unable find location settings.", e);
             }
-            int state = intent.getIntExtra(EXTRA_STATE, Config.ANTITHEFT_STATE.NORMAL.getState());
+            int state = intent.getIntExtra(SERVICE_PARAM, Config.ANTITHEFT_STATE.NORMAL.getState());
             if (state == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
                 mConstantReporting = true;
             }
@@ -164,13 +144,6 @@ public class DeviceFinderService extends Service implements LocationListener,
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy");
-        if (sWakeLock != null) {
-            Log.i(TAG, "sWakeLock existing");
-            Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
-            sWakeLock.release();
-        }
-        Log.i(TAG, "end onDestroy");
         mIsRunning = false;
         mGoogleApiClient.disconnect();
     }

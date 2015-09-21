@@ -38,14 +38,13 @@ public class AntiTheftBootReceiver extends BroadcastReceiver {
                 Config.ANTITHEFT_STATE.NORMAL.getState());
         if (mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
             LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS, context);
-            WhosThatService.startCameraService(AntiTheftApplication.getInstance(),
-                    WhosThatService.CAMERA_FACETRACK_IMAGE);
-            WhosThatSoundService.startSoundRecordingService(AntiTheftApplication.getInstance());
-            ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SMILE,
-                    DeviceInfo.getIMEI(AntiTheftApplication.getInstance())).saveEventually();
-            // should start camera service
+            WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
+                    AntiTheftApplication.getInstance(), WhosThatService.CAMERA_FACETRACK_IMAGE);
+            WhosThatSoundService.startAntiTheftService(WhosThatSoundService.class.getName(),
+                    AntiTheftApplication.getInstance(), -1);
         }
-        DeviceFinderService.reportLocation(AntiTheftApplication.getInstance(), mCurrentState);
+        DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
+                AntiTheftApplication.getInstance(), mCurrentState);
     }
 
 }

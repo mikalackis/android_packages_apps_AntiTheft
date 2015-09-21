@@ -68,7 +68,7 @@ import com.parse.ParseException;
  *         Capture image as soon as the service starts 2. Capture image only when facetrack detects
  *         a face 3. Record a video.
  */
-public class WhosThatService extends Service {
+public class WhosThatService extends AntiTheftService {
 
     public static final String TAG = "WhosThatService";
 
@@ -78,8 +78,6 @@ public class WhosThatService extends Service {
     public static final int CAMERA_VIDEO = 1;
     public static final int CAMERA_FACETRACK_IMAGE = 2;
     public static final int CAMERA_STOP_RECORDING = 3;
-
-    public static final String SERVICE_PARAM = "service_param";
 
     private static final int CAMERA_VIDEO_LENGHT = 5000; // MILISECONDS
 
@@ -95,8 +93,6 @@ public class WhosThatService extends Service {
     private boolean mIsRecordingVideo = false;
 
     private File mVideFile;
-
-    private static PowerManager.WakeLock sWakeLock;
 
     /**
      * The {@link android.util.Size} of video recording.
@@ -131,20 +127,6 @@ public class WhosThatService extends Service {
         }
     };
 
-    public static void startCameraService(Context context, int mode) {
-        if (sWakeLock == null) {
-            PowerManager pm = (PowerManager)
-                    context.getSystemService(Context.POWER_SERVICE);
-            sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        }
-        if (!sWakeLock.isHeld()) {
-            sWakeLock.acquire();
-        }
-        Intent intent = new Intent(context, WhosThatService.class);
-        intent.putExtra(SERVICE_PARAM, mode);
-        context.startService(intent);
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -153,12 +135,6 @@ public class WhosThatService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy");
-        if (sWakeLock != null) {
-            Log.i(TAG, "sWakeLock existing");
-            Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
-            sWakeLock.release();
-        }
         closeCamera();
     }
 

@@ -33,8 +33,8 @@ public class AntiTheftSMSOperator {
 
     public void checkMessage(final String msg, final String returnNumber) {
         if (msg.equals(AntiTheftSMSConstants.WHERE)) {
-            DeviceFinderService.reportLocation(AntiTheftApplication.getInstance(),
-                    Config.ANTITHEFT_STATE.NORMAL.getState());
+            DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
+                    AntiTheftApplication.getInstance(), Config.ANTITHEFT_STATE.NORMAL.getState());
             reportStatusToSender(returnNumber, "Location service started");
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.WHERE,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
@@ -42,7 +42,8 @@ public class AntiTheftSMSOperator {
         else if (msg.equals(AntiTheftSMSConstants.SMILE)) {
             // take picture
             reportStatusToSender(returnNumber, "Taking picture");
-            WhosThatService.startCameraService(AntiTheftApplication.getInstance(),
+            WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
+                    AntiTheftApplication.getInstance(),
                     WhosThatService.CAMERA_FACETRACK_IMAGE);
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SMILE,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
@@ -50,7 +51,8 @@ public class AntiTheftSMSOperator {
         else if (msg.equals(AntiTheftSMSConstants.SMILE_NOW)) {
             // take picture
             reportStatusToSender(returnNumber, "Taking picture");
-            WhosThatService.startCameraService(AntiTheftApplication.getInstance(),
+            WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
+                    AntiTheftApplication.getInstance(),
                     WhosThatService.CAMERA_IMAGE);
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SMILE_NOW,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
@@ -113,8 +115,8 @@ public class AntiTheftSMSOperator {
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }
         else if (msg.equals(AntiTheftSMSConstants.TRACK_ME_START)) {
-            DeviceFinderService.reportLocation(AntiTheftApplication.getInstance(),
-                    Config.ANTITHEFT_STATE.LOCKDOWN.getState());
+            DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
+                    AntiTheftApplication.getInstance(), Config.ANTITHEFT_STATE.LOCKDOWN.getState());
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.TRACK_ME_START,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }

@@ -44,15 +44,13 @@ import com.parse.SaveCallback;
 import com.parse.ParseException;
 
 /** Records an audio on service start. */
-public class WhosThatSoundService extends Service implements Recorder.OnStateChangedListener {
+public class WhosThatSoundService extends AntiTheftService implements Recorder.OnStateChangedListener {
 
     public static final String TAG = "WhosThatSoundService";
 
     public static final int SOUND_STOP_RECORDING = 1;
 
     private static final int SOUND_RECORDING_LENGHT = 10000; // MILISECONDS
-
-    private static PowerManager.WakeLock sWakeLock;
 
     // Handler thread off of ui
     private HandlerThread mRecordThread;
@@ -84,19 +82,6 @@ public class WhosThatSoundService extends Service implements Recorder.OnStateCha
         }
     };
 
-    public static void startSoundRecordingService(Context context) {
-        if (sWakeLock == null) {
-            PowerManager pm = (PowerManager)
-                    context.getSystemService(Context.POWER_SERVICE);
-            sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-        }
-        if (!sWakeLock.isHeld()) {
-            sWakeLock.acquire();
-        }
-        Intent intent = new Intent(context, WhosThatSoundService.class);
-        context.startService(intent);
-    }
-
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -105,12 +90,6 @@ public class WhosThatSoundService extends Service implements Recorder.OnStateCha
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.i(TAG, "onDestroy");
-        if (sWakeLock != null) {
-            Log.i(TAG, "sWakeLock existing");
-            Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
-            sWakeLock.release();
-        }
         mRecorder = null;
     }
 
