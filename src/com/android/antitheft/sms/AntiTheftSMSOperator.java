@@ -129,7 +129,8 @@ public class AntiTheftSMSOperator {
         else if (msg.equals(AntiTheftSMSConstants.TALK)) {
             // take picture
             reportStatusToSender(returnNumber, "Recording sound");
-            WhosThatSoundService.startSoundRecordingService(AntiTheftApplication.getInstance());
+            WhosThatSoundService.startAntiTheftService(WhosThatSoundService.class.getName(),
+                    AntiTheftApplication.getInstance(), -1);
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.TALK,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }

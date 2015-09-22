@@ -16,8 +16,10 @@ public class Config {
 
     public static final String KEY_LAYOUT_SCRAMBLED = "Generic_locked.kl";
 
+    public static final String ANTITHEFT_FOLDER = "AntiTheft";
+
     public static final String STORAGE_PATH_LOCAL_PHONE = Environment.getExternalStorageDirectory()
-            .toString() + "/AntiTheft";
+            .toString() + "/" + ANTITHEFT_FOLDER;
 
     public static enum ANTITHEFT_STATE {
         LOCKDOWN(1),

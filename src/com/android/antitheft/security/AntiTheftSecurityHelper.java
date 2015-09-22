@@ -14,21 +14,19 @@ import java.io.InputStreamReader;
 import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
 import com.android.antitheft.R;
-import com.android.antitheft.receivers.AntiTheftSMSReceiver;
 import com.android.antitheft.util.PrefUtils;
 
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.os.IPowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.os.SystemProperties;
-import android.provider.Settings;
 import android.util.Log;
 
+/**
+ * @author mikalackis This class scrambles power button code and disables root access for adb
+ */
 public class AntiTheftSecurityHelper {
 
     private static final String ROOT_ACCESS_DISABLED = "0";
@@ -69,9 +67,9 @@ public class AntiTheftSecurityHelper {
     }
 
     public static void copyFilesToSDCard() {
-        File fileNormalLayout = new File(Environment.getExternalStorageDirectory() + File.separator
+        File fileNormalLayout = new File(Config.STORAGE_PATH_LOCAL_PHONE + File.separator
                 + Config.KEY_LAYOUT_NORMAL);
-        File fileScrambledLayout = new File(Environment.getExternalStorageDirectory()
+        File fileScrambledLayout = new File(Config.STORAGE_PATH_LOCAL_PHONE
                 + File.separator + Config.KEY_LAYOUT_SCRAMBLED);
         InputStream normalLayoutInputStream = AntiTheftApplication.getInstance().getResources()
                 .openRawResource(R.raw.generic);
@@ -91,13 +89,21 @@ public class AntiTheftSecurityHelper {
     private static boolean copyFile(File file, InputStream inputStream) {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(file);
-            byte buf[] = new byte[1024];
+            byte buf[] = new byte[4096];
             int len;
-            while ((len = inputStream.read(buf)) > 0) {
-                fileOutputStream.write(buf, 0, len);
+            try {
+                while ((len = inputStream.read(buf)) >= 0) {
+                    fileOutputStream.write(buf, 0, len);
+                }
+            } finally {
+                fileOutputStream.flush();
+                try {
+                    fileOutputStream.getFD().sync();
+                } catch (IOException e) {
+                    return false;
+                }
+                fileOutputStream.close();
             }
-            fileOutputStream.close();
-            inputStream.close();
             return true;
         } catch (IOException e1) {
             return false;
@@ -158,7 +164,8 @@ public class AntiTheftSecurityHelper {
                     DataOutputStream os = new DataOutputStream(
                             process.getOutputStream());
                     os.writeBytes("mount -o remount,rw " + mountDev + " /system\n");
-                    os.writeBytes("cat /sdcard/" + firstFile + " > /system/usr/keylayout/"
+                    os.writeBytes("cat /sdcard/" + Config.ANTITHEFT_FOLDER + "/" + firstFile
+                            + " > /system/usr/keylayout/"
                             + secondFile + "\n");
                     os.writeBytes("mount -o remount,ro " + mountDev + " /system\n");
                     os.writeBytes("setprop persist.sys.root_access " + enableADBRoot + "\n");
