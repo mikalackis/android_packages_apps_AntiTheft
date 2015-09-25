@@ -18,22 +18,18 @@ package com.android.antitheft;
 
 import android.app.Application;
 import android.content.ComponentName;
-import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.os.IBinder;
 import android.telephony.PhoneStateListener;
-import android.telephony.ServiceState;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.android.antitheft.listeners.AntiTheftPhoneStateListener;
+import com.android.antitheft.receivers.AntiTheftBootReceiver;
+import com.android.antitheft.receivers.AntiTheftSMSReceiver;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
-import com.android.antitheft.services.DeviceFinderService;
-import com.android.antitheft.services.DeviceFinderService.DeviceFinderServiceBinder;
+import com.android.antitheft.util.AntiTheftNotifier;
 import com.android.antitheft.util.PrefUtils;
-import com.parse.Parse;
 
 public class AntiTheftApplication extends Application {
 
@@ -53,26 +49,52 @@ public class AntiTheftApplication extends Application {
         mInstance = this;
 
         PrefUtils.init(this);
+        
+        ParseHelper.parseInit();
 
-        Parse.initialize(this, "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD",
-                "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
-
-        if (!PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
-                false)) {
-            AntiTheftSecurityHelper.copyFilesToSDCard();
+        if (!PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_ENABLED, true)) {
+            AntiTheftNotifier.notifyAntiTheftState(this);
+            disableAllReceivers();
         }
-
-        if (Config.DEBUG) {
-            Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+        else {
+            if (!PrefUtils.getInstance().getBoolPreference(
+                    PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
+                    false)) {
+                AntiTheftSecurityHelper.copyFilesToSDCard();
+            }
+            enableAllReceivers();
         }
-
-        final TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-        tm.listen(new AntiTheftPhoneStateListener(), PhoneStateListener.LISTEN_SERVICE_STATE);
 
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
+    }
+
+    public void disableAllReceivers() {
+        ComponentName bootReceiver = new ComponentName(getApplicationContext(),
+                AntiTheftBootReceiver.class);
+        getPackageManager().setComponentEnabledSetting(bootReceiver,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        ComponentName smsReceiver = new ComponentName(getApplicationContext(),
+                AntiTheftSMSReceiver.class);
+        getPackageManager().setComponentEnabledSetting(smsReceiver,
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        final TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        tm.listen(new AntiTheftPhoneStateListener(), PhoneStateListener.LISTEN_NONE);
+    }
+
+    public void enableAllReceivers() {
+        ComponentName bootReceiver = new ComponentName(getApplicationContext(),
+                AntiTheftBootReceiver.class);
+        getPackageManager().setComponentEnabledSetting(bootReceiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        ComponentName smsReceiver = new ComponentName(getApplicationContext(),
+                AntiTheftSMSReceiver.class);
+        getPackageManager().setComponentEnabledSetting(smsReceiver,
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+        final TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        tm.listen(new AntiTheftPhoneStateListener(), PhoneStateListener.LISTEN_SERVICE_STATE);
     }
 
 }

@@ -1,9 +1,17 @@
 
 package com.android.antitheft;
 
+import android.content.Context;
+
+import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
+import com.android.antitheft.services.DeviceFinderService;
+import com.android.antitheft.services.WhosThatService;
+import com.android.antitheft.services.WhosThatSoundService;
+import com.android.antitheft.util.PrefUtils;
 import com.parse.ParseObject;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseFile;
+import com.parse.Parse;
 
 public class ParseHelper {
 
@@ -33,6 +41,30 @@ public class ParseHelper {
         parseObject.put("whos_there", file);
         parseObject.put("imei", imei != null ? imei : "");
         return parseObject;
+    }
+
+    public static void antiTheftOnline(final Context context) {
+        ParseHelper.initializeActivityParseObject("AntiTheft online", DeviceInfo.getIMEI(context))
+                .saveEventually();
+        int mCurrentState = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
+                Config.ANTITHEFT_STATE.NORMAL.getState());
+        if (mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
+            LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS, context);
+            WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
+                    AntiTheftApplication.getInstance(), WhosThatService.CAMERA_FACETRACK_IMAGE);
+            WhosThatSoundService.startAntiTheftService(WhosThatSoundService.class.getName(),
+                    AntiTheftApplication.getInstance(), -1);
+        }
+        DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
+                AntiTheftApplication.getInstance(), mCurrentState);
+    }
+    
+    public static void parseInit(){
+        Parse.initialize(AntiTheftApplication.getInstance(), "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD",
+                "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
+        if (Config.DEBUG) {
+            Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+        }
     }
 
 }

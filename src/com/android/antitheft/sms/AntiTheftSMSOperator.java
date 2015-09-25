@@ -25,13 +25,7 @@ import android.telephony.SmsManager;
  */
 public class AntiTheftSMSOperator {
 
-    private Context mContext;
-
-    public AntiTheftSMSOperator(final Context context) {
-        mContext = context;
-    }
-
-    public void checkMessage(final String msg, final String returnNumber) {
+    public static void checkMessage(final Context mContext, final String msg, final String returnNumber) {
         if (msg.equals(AntiTheftSMSConstants.WHERE)) {
             DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
                     AntiTheftApplication.getInstance(), Config.ANTITHEFT_STATE.NORMAL.getState());
@@ -80,10 +74,17 @@ public class AntiTheftSMSOperator {
         }
         else if (msg.equals(AntiTheftSMSConstants.SCREW_POWER)) {
             // disable power button
-            AntiTheftSecurityHelper.performPowerSwitch(true);
-            reportStatusToSender(returnNumber, "Power disabled initialized");
-            ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SCREW_POWER,
-                    DeviceInfo.getIMEI(mContext)).saveEventually();
+            if(PrefUtils.getInstance().getBoolPreference(PrefUtils.SCRAMBLE_POWER, false)){
+                AntiTheftSecurityHelper.performPowerSwitch(true);
+                reportStatusToSender(returnNumber, "Power disabled initialized");
+                ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SCREW_POWER,
+                        DeviceInfo.getIMEI(mContext)).saveEventually();
+            }
+            else{
+                reportStatusToSender(returnNumber, "Scramble power: su denied");
+                ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SCREW_POWER+": su denied",
+                        DeviceInfo.getIMEI(mContext)).saveEventually();
+            }
         }
         else if (msg.equals(AntiTheftSMSConstants.UNSCREW_POWER)) {
             // enable power button
@@ -99,7 +100,16 @@ public class AntiTheftSMSOperator {
             // first step: lock the screen
             LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS, mContext);
             // second step: disable power button, disable root adb and reboot
-            AntiTheftSecurityHelper.performPowerSwitch(true);
+            // disable power button
+            if(PrefUtils.getInstance().getBoolPreference(PrefUtils.SCRAMBLE_POWER, false)){
+                AntiTheftSecurityHelper.performPowerSwitch(true);
+            }
+            else{
+                WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
+                        AntiTheftApplication.getInstance(), WhosThatService.CAMERA_FACETRACK_IMAGE);
+                WhosThatSoundService.startAntiTheftService(WhosThatSoundService.class.getName(),
+                        AntiTheftApplication.getInstance(), -1);
+            }
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.LOCKDOWN,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }
@@ -137,7 +147,7 @@ public class AntiTheftSMSOperator {
 
     }
 
-    private void reportStatusToSender(final String sender, final String message) {
+    private static void reportStatusToSender(final String sender, final String message) {
         SmsManager smsManager = SmsManager.getDefault();
         smsManager.sendTextMessage(sender, null, message, null, null);
     }

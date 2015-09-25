@@ -44,10 +44,12 @@ import com.parse.SaveCallback;
 import com.parse.ParseException;
 
 /** Records an audio on service start. */
-public class WhosThatSoundService extends AntiTheftService implements Recorder.OnStateChangedListener {
+public class WhosThatSoundService extends AntiTheftService implements
+        Recorder.OnStateChangedListener {
 
     public static final String TAG = "WhosThatSoundService";
 
+    public static final int SOUND_START_RECORDING = 0;
     public static final int SOUND_STOP_RECORDING = 1;
 
     private static final int SOUND_RECORDING_LENGHT = 10000; // MILISECONDS
@@ -55,7 +57,6 @@ public class WhosThatSoundService extends AntiTheftService implements Recorder.O
     // Handler thread off of ui
     private HandlerThread mRecordThread;
     private static final String RECORDER_THREAD = "recorder_thread";
-    private Handler mRecordHandler;
     private Recorder mRecorder;
     static final int SAMPLERATE_AMR_WB = 16000;
     static final int BITRATE_AMR_WB = 16000;
@@ -66,21 +67,7 @@ public class WhosThatSoundService extends AntiTheftService implements Recorder.O
     String mAmrWidebandExtension = ".awb";
     int mAudioSourceType = MediaRecorder.AudioSource.MIC;
 
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            try {
-                if (msg.what == SOUND_STOP_RECORDING) {
-                    // stop recording sound
-                    mRecorder.stop();
-                    saveSample();
-                }
-            } catch (Exception e) {
-                // Log, don't crash!
-                e.printStackTrace();
-            }
-        }
-    };
+    private Handler mRecordHandler;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -88,14 +75,76 @@ public class WhosThatSoundService extends AntiTheftService implements Recorder.O
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+        mRecordThread = new HandlerThread(RECORDER_THREAD, Thread.MAX_PRIORITY);
+        startRecorderThread();
+        mRecordHandler = new Handler(mRecordThread.getLooper()) {
+            @Override
+            public void handleMessage(Message msg) {
+                if (mRecorder == null) {
+                    Log.wtf(TAG, "Recorder instance is null");
+                }
+                try {
+                    switch (msg.what) {
+                        case SOUND_START_RECORDING: {
+                            Log.i(TAG, "RECORDING SOUND");
+                            startRecordingAmrWideband();
+                            Message msgStop = Message.obtain();
+                            msgStop.what = SOUND_STOP_RECORDING;
+                            mRecordHandler.sendMessageDelayed(msgStop, SOUND_RECORDING_LENGHT);
+                            break;
+                        }
+                        case SOUND_STOP_RECORDING: {
+                            // stop recording sound
+                            Log.i(TAG, "STOP RECORDING SOUND");
+                            mRecorder.stop();
+                            saveSample();
+                            break;
+                        }
+                    }
+                } catch (Exception e) {
+                    // Log, don't crash!
+                    e.printStackTrace();
+                }
+            }
+        };
+    }
+
+    private void startRecorderThread() {
+        if (isThreadNew()) {
+            mRecordThread.start();
+        }
+    }
+
+    private void stopRecorderThread() {
+        if (isThreadRunnable()) {
+            mRecordThread.interrupt();
+        }
+    }
+
+    private boolean isThreadNew() {
+        return (mRecordThread.getState() == Thread.State.NEW);
+    }
+
+    private boolean isThreadRunnable() {
+        return (mRecordThread.getState() == Thread.State.RUNNABLE);
+    }
+
+    @Override
     public void onDestroy() {
-        super.onDestroy();
         mRecorder = null;
+        mRecordHandler.removeCallbacksAndMessages(null);
+        stopRecorderThread();
+        super.onDestroy();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         initRecorder();
+        Message msg = Message.obtain();
+        msg.what = SOUND_START_RECORDING;
+        mRecordHandler.sendMessage(msg);
         return Service.START_NOT_STICKY;
     }
 
@@ -105,10 +154,6 @@ public class WhosThatSoundService extends AntiTheftService implements Recorder.O
     private void initRecorder() {
         mRecorder = new Recorder();
         mRecorder.setOnStateChangedListener(this);
-        startRecordingAmrWideband();
-        Message msg = new Message();
-        msg.what = SOUND_STOP_RECORDING;
-        mHandler.sendMessageDelayed(msg, SOUND_RECORDING_LENGHT);
     }
 
     /*
@@ -126,6 +171,7 @@ public class WhosThatSoundService extends AntiTheftService implements Recorder.O
                     bFile, mRecorder.sampleFile().getName()).saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException parseException) {
+                    Log.i(TAG, "SOUND UPLOADED");
                     mRecorder.delete();
                     stopSelf();
                 }
@@ -155,8 +201,8 @@ public class WhosThatSoundService extends AntiTheftService implements Recorder.O
 
     @Override
     public void onError(int error) {
-        // TODO Auto-generated method stub
-
+        // mRecorder.delete();
+        stopSelf();
     }
 
 }

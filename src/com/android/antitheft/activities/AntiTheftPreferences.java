@@ -3,12 +3,16 @@ package com.android.antitheft.activities;
 
 import java.util.ArrayList;
 
+import com.android.antitheft.AntiTheftApplication;
+import com.android.antitheft.ParseHelper;
 import com.android.antitheft.R;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
+import android.preference.PreferenceScreen;
+import android.preference.SwitchPreference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceFragment;
 import android.util.Log;
@@ -30,6 +34,7 @@ public class AntiTheftPreferences extends PreferenceFragment implements
 
     private EditTextPreference mParseAppId;
     private EditTextPreference mParseClientKey;
+    private SwitchPreference mScramblePower;
 
     private final ArrayList<Preference> mAllPrefs = new ArrayList<Preference>();
 
@@ -40,6 +45,8 @@ public class AntiTheftPreferences extends PreferenceFragment implements
 
         mParseAppId = (EditTextPreference) findPreference(PrefUtils.PARSE_APP_ID);
         mParseClientKey = (EditTextPreference) findPreference(PrefUtils.PARSE_CLIENT_KEY);
+        mScramblePower = (SwitchPreference) findPreference(PrefUtils.SCRAMBLE_POWER);
+        mScramblePower.setOnPreferenceChangeListener(this);
 
     }
 
@@ -56,10 +63,13 @@ public class AntiTheftPreferences extends PreferenceFragment implements
     public void onResume() {
         super.onResume();
 
-        mLastEnabledState = PrefUtils.getInstance().getBoolPreference(PrefUtils.ENABLE_ANTITHEFT,
+        mLastEnabledState = PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_ENABLED,
                 false);
         mSwitchBar.setChecked(mLastEnabledState);
         setPrefsEnabledState(mLastEnabledState);
+
+        mScramblePower.setChecked(PrefUtils.getInstance().getBoolPreference(
+                PrefUtils.SCRAMBLE_POWER, false));
 
         mSwitchBar.show();
     }
@@ -71,47 +81,14 @@ public class AntiTheftPreferences extends PreferenceFragment implements
         }
         if (isChecked != mLastEnabledState) {
             if (isChecked) {
-                final ProgressDialog dlg = new ProgressDialog(getActivity());
-                dlg.setTitle("SU check");
-                dlg.setMessage("SU check in progress...");
-                dlg.setIndeterminate(true);
-                dlg.show();
-                new Thread() {
-                    public void run() {
-                        boolean _error = false;
-                        try {
-                            if (AntiTheftSecurityHelper.checkSu()) {
-                                _error = false;
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                            Log.i(TAG, e.getMessage());
-                            _error = true;
-                        }
-                        final boolean error = _error;
-                        dlg.dismiss();
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (error) {
-                                    PrefUtils.getInstance().setBoolPreference(
-                                            PrefUtils.ENABLE_ANTITHEFT, false);
-                                    Toast.makeText(getActivity(), "SU access not available",
-                                            Toast.LENGTH_LONG).show();
-                                }
-                                else {
-                                    PrefUtils.getInstance().setBoolPreference(
-                                            PrefUtils.ENABLE_ANTITHEFT, true);
-                                    Toast.makeText(getActivity(), "SU access granted",
-                                            Toast.LENGTH_LONG).show();
-                                }
-                            }
-                        });
-                    };
-                }.start();
+                PrefUtils.getInstance().setBoolPreference(
+                        PrefUtils.ANTITHEFT_ENABLED, true);
+                AntiTheftApplication.getInstance().enableAllReceivers();
+                ParseHelper.antiTheftOnline(getActivity());
             } else {
                 mLastEnabledState = isChecked;
-                PrefUtils.getInstance().setBoolPreference(PrefUtils.ENABLE_ANTITHEFT, false);
+                PrefUtils.getInstance().setBoolPreference(PrefUtils.ANTITHEFT_ENABLED, false);
+                AntiTheftApplication.getInstance().disableAllReceivers();
                 setPrefsEnabledState(mLastEnabledState);
             }
         }
@@ -138,9 +115,56 @@ public class AntiTheftPreferences extends PreferenceFragment implements
                     newValue.toString());
             return true;
         }
+        else if (PrefUtils.SCRAMBLE_POWER.equals(preference.getKey())) {
+            final SwitchPreference pref = (SwitchPreference) preference;
+            if (!pref.isChecked()) {
+                Toast.makeText(getActivity(), "Check on pref detected", Toast.LENGTH_LONG).show();
+                final ProgressDialog dlg = new ProgressDialog(getActivity());
+                dlg.setTitle("SU check");
+                dlg.setMessage("SU check in progress...");
+                dlg.setIndeterminate(true);
+                dlg.show();
+                new Thread() {
+                    public void run() {
+                        boolean _error = false;
+                        try {
+                            if (AntiTheftSecurityHelper.checkSu()) {
+                                _error = false;
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Log.i(TAG, e.getMessage());
+                            _error = true;
+                        }
+                        final boolean error = _error;
+                        dlg.dismiss();
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (error) {
+                                    PrefUtils.getInstance().setBoolPreference(
+                                            PrefUtils.SCRAMBLE_POWER, false);
+                                    pref.setChecked(false);
+                                }
+                                else {
+                                    PrefUtils.getInstance().setBoolPreference(
+                                            PrefUtils.SCRAMBLE_POWER, true);
+                                    Toast.makeText(getActivity(), "SU access granted",
+                                            Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    };
+                }.start();
+            }
+            else {
+                Toast.makeText(getActivity(), "Check off pref detected", Toast.LENGTH_LONG).show();
+                PrefUtils.getInstance().setBoolPreference(PrefUtils.SCRAMBLE_POWER, false);
+            }
+            return true;
+        }
         else {
             return false;
         }
     }
-
 }

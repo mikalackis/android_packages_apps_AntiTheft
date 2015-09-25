@@ -18,6 +18,11 @@
         xmlns:antitheft="http://schemas.android.com/apk/res-auto"
         android:title="@string/preference_title">
         
+    <SwitchPreference
+        android:key="scramble_power"
+        android:title="@string/scramble_power_title"
+        android:defaultValue="false" />
+        
     <PreferenceCategory android:key="parse_data"
             android:title="@string/parse_data_title">
 

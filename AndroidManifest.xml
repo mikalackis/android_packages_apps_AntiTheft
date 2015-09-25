@@ -163,7 +163,8 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="com.android.antitheft.receivers.AntiTheftBootReceiver" >
+        <receiver android:name="com.android.antitheft.receivers.AntiTheftBootReceiver"
+            android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -175,6 +176,7 @@
 
         <receiver
             android:name="com.android.antitheft.receivers.AntiTheftSMSReceiver"
+            android:enabled="true"
             android:exported="true" >
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" >
