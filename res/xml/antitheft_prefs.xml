@@ -40,15 +40,13 @@
         
         <EditTextPreference
             android:key="antitheft_parse_app_id"
-            android:title="@string/parse_data_title"
-            android:summary="@string/parse_app_id"
-            android:dialogTitle="parse_data_title" />
+            android:summary="@string/parse_app_id_x"
+            android:dialogTitle="@string/parse_app_id_x" />
         
           <EditTextPreference
             android:key="antitheft_parse_client_key"
-            android:title="@string/parse_data_title"
-            android:summary="@string/parse_client_key"
-            android:dialogTitle="parse_data_title" />
+            android:summary="@string/parse_client_key_x"
+            android:dialogTitle="@string/parse_client_key_x" />
 
     </PreferenceCategory>
 

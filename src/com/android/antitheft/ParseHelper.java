@@ -59,9 +59,8 @@ public class ParseHelper {
                 AntiTheftApplication.getInstance(), mCurrentState);
     }
     
-    public static void parseInit(){
-        Parse.initialize(AntiTheftApplication.getInstance(), "BvtKyhjpEjZ1raBviAITO5zdKxxf4ExUIM70TzuD",
-                "VapasvHYrYObD42EAE9h6Jt5k788wYFm1Uu4cgFb");
+    public static void parseInit(final Context context){
+        Parse.initialize(context);
         if (Config.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         }

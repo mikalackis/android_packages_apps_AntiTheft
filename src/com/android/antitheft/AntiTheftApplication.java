@@ -50,7 +50,7 @@ public class AntiTheftApplication extends Application {
 
         PrefUtils.init(this);
         
-        ParseHelper.parseInit();
+        ParseHelper.parseInit(this);
 
         if (!PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_ENABLED, true)) {
             AntiTheftNotifier.notifyAntiTheftState(this);
