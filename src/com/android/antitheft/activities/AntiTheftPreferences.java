@@ -42,12 +42,10 @@ public class AntiTheftPreferences extends PreferenceFragment implements
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         addPreferencesFromResource(R.xml.antitheft_prefs);
-
         mParseAppId = (EditTextPreference) findPreference(PrefUtils.PARSE_APP_ID);
         mParseClientKey = (EditTextPreference) findPreference(PrefUtils.PARSE_CLIENT_KEY);
         mScramblePower = (SwitchPreference) findPreference(PrefUtils.SCRAMBLE_POWER);
         mScramblePower.setOnPreferenceChangeListener(this);
-
     }
 
     @Override

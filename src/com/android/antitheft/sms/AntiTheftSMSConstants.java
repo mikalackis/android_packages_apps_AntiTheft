@@ -34,5 +34,22 @@ public class AntiTheftSMSConstants {
     public static final String TALK = "talk";
     // record voice
     public static final String TALK_STOP = "talk_stop";
+    
+    public static enum SMS_CONSTANTS {
+        SMILE,
+        SMILE_NOW,
+        STOP_SMILE,
+        ACTOR,
+        WHERE,
+        TRACK_ME_START,
+        TRACK_ME_STOP,
+        LOCKDOWN,
+        IM_BACK,
+        SCREEN_LOCK,
+        TALK,
+        TALK_STOP,
+        SCREW_POWER,
+        UNSCREW_POWER
+    }
 
 }
