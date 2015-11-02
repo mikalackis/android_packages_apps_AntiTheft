@@ -24,10 +24,6 @@ public class AntiTheftSMSConstants {
     public static final String LOCKDOWN = "byebye";
     // enable device
     public static final String IM_BACK = "leboss";
-    // disable power button
-    public static final String SCREW_POWER = "screw_power";
-    // enable power button
-    public static final String UNSCREW_POWER = "unscrew_power";
     // lock screen with pwd
     public static final String SCREEN_LOCK = "lockscreen";
     // record voice
@@ -35,21 +31,4 @@ public class AntiTheftSMSConstants {
     // record voice
     public static final String TALK_STOP = "talk_stop";
     
-    public static enum SMS_CONSTANTS {
-        SMILE,
-        SMILE_NOW,
-        STOP_SMILE,
-        ACTOR,
-        WHERE,
-        TRACK_ME_START,
-        TRACK_ME_STOP,
-        LOCKDOWN,
-        IM_BACK,
-        SCREEN_LOCK,
-        TALK,
-        TALK_STOP,
-        SCREW_POWER,
-        UNSCREW_POWER
-    }
-
 }

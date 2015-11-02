@@ -16,7 +16,6 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.android.antitheft.R;
-import com.android.antitheft.activities.SettingsActivity;
 
 import java.io.File;
 
@@ -26,25 +25,25 @@ public class AntiTheftNotifier {
         // Don't instantiate me bro
     }
 
-    public static void notifyAntiTheftState(Context context) {
-
-        NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle()
-                .setBigContentTitle(context.getString(R.string.notification_big_title))
-                .bigText(context.getString(R.string.notification_big_content));
-
-        NotificationCompat.Builder builder = createBaseContentBuilder(context)
-                .setSmallIcon(android.R.drawable.arrow_up_float)
-                .setContentTitle(context.getString(R.string.notification_title))
-                .setContentText(context.getString(R.string.notification_content))
-                .setTicker("TICKER")
-                .setStyle(style)
-                .addAction(android.R.drawable.btn_star,
-                        "UPDATE_INSTALL",
-                        createInstallPendingIntent(context));
-
-        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
-                .notify(R.string.app_label, builder.build());
-    }
+//    public static void notifyAntiTheftState(Context context) {
+//
+//        NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle()
+//                .setBigContentTitle(context.getString(R.string.notification_big_title))
+//                .bigText(context.getString(R.string.notification_big_content));
+//
+//        NotificationCompat.Builder builder = createBaseContentBuilder(context)
+//                .setSmallIcon(android.R.drawable.arrow_up_float)
+//                .setContentTitle(context.getString(R.string.notification_title))
+//                .setContentText(context.getString(R.string.notification_content))
+//                .setTicker("TICKER")
+//                .setStyle(style)
+//                .addAction(android.R.drawable.btn_star,
+//                        "UPDATE_INSTALL",
+//                        createInstallPendingIntent(context));
+//
+//        ((NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE))
+//                .notify(R.string.app_label, builder.build());
+//    }
 
     // public static void notifyDownloadError(Context context,
     // Intent updateIntent, int failureMessageResId) {
@@ -58,26 +57,26 @@ public class AntiTheftNotifier {
     // .notify(R.string.not_download_success, builder.build());
     // }
 
-    private static NotificationCompat.Builder createBaseContentBuilder(Context context) {
-        Intent installIntent = new Intent(context, SettingsActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 1,
-                installIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
-
-        return new NotificationCompat.Builder(context)
-                .setWhen(System.currentTimeMillis())
-                .setContentIntent(contentIntent)
-                .setLocalOnly(true)
-                .setAutoCancel(true);
-    }
-
-    private static PendingIntent createInstallPendingIntent(Context context) {
-        Intent installIntent = new Intent(context, SettingsActivity.class);
-
-        return PendingIntent.getActivity(
-                context,
-                0,
-                installIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-                );
-    }
+//    private static NotificationCompat.Builder createBaseContentBuilder(Context context) {
+//        Intent installIntent = new Intent(context, SettingsActivity.class);
+//        PendingIntent contentIntent = PendingIntent.getActivity(context, 1,
+//                installIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
+//
+//        return new NotificationCompat.Builder(context)
+//                .setWhen(System.currentTimeMillis())
+//                .setContentIntent(contentIntent)
+//                .setLocalOnly(true)
+//                .setAutoCancel(true);
+//    }
+//
+//    private static PendingIntent createInstallPendingIntent(Context context) {
+//        Intent installIntent = new Intent(context, SettingsActivity.class);
+//
+//        return PendingIntent.getActivity(
+//                context,
+//                0,
+//                installIntent,
+//                PendingIntent.FLAG_UPDATE_CURRENT
+//                );
+//    }
 }

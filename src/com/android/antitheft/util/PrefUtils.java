@@ -14,11 +14,7 @@ public class PrefUtils {
     /** keys */
     public static final String ANTITHEFT_ENABLED = "antitheft_enabled";
 
-    public static final String SCRAMBLE_POWER = "scramble_power";
-    public static final String PARSE_APP_ID = "antitheft_parse_app_id";
-    public static final String PARSE_CLIENT_KEY = "antitheft_parse_client_key";
     public static final String ANTITHEFT_MODE = "antitheft_mode";
-    public static final String ANTITHEFT_KEYLAYOUT_FILES_PRESENT = "antitheft_keylayout_present";
 
     private static Context mContext;
 

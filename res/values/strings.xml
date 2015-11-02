@@ -20,23 +20,6 @@
     <!-- Name of the status bar as seen in the applications info settings page. [CHAR LIMIT=12] -->
     <string name="app_label">AntiTheft</string>
     
-    <string name="check_password">Check password</string>
-    <string name="enter_password">Enter your password</string>
-    
-    <string name="scramble_layout">Scramble buttons</string>
-    <string name="revert_layout">Revert scramble</string>
-    
-    <!--  preferences screen -->
-    <string name="preference_title">AntiTheft Settings</string>
-    <string name="parse_data_title">Parse data</string>
-    <string name="parse_app_id_x">Parse Application ID</string>
-    <string name="parse_client_key_x">Parse Client Key</string>
-    <string name="scramble_power_title">Scramble power button option</string>
-    
-    <!-- switch strings -->
-    <string name="switch_on_text">On</string>
-    <string name="switch_off_text">Off</string>
-    
     <!-- notification strings -->
     <string name="notification_title">AntiTheft Status</string>
     <string name="notification_content">AntiTheft present. Click to enable</string>

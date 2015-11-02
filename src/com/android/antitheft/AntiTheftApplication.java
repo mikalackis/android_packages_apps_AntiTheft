@@ -47,24 +47,15 @@ public class AntiTheftApplication extends Application {
         Log.i(TAG, "AntiTheft app created");
 
         mInstance = this;
-
         PrefUtils.init(this);
-        
         ParseHelper.parseInit(this);
-
         if (!PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_ENABLED, true)) {
-            AntiTheftNotifier.notifyAntiTheftState(this);
+            //AntiTheftNotifier.notifyAntiTheftState(this);
             disableAllReceivers();
         }
         else {
-            if (!PrefUtils.getInstance().getBoolPreference(
-                    PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
-                    false)) {
-                AntiTheftSecurityHelper.copyFilesToSDCard();
-            }
             enableAllReceivers();
         }
-
     }
 
     @Override

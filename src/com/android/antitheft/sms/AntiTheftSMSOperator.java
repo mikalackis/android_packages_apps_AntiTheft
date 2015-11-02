@@ -62,6 +62,9 @@ public class AntiTheftSMSOperator {
         else if (msg.equals(AntiTheftSMSConstants.ACTOR)) {
             // take video
             reportStatusToSender(returnNumber, "Taking video");
+            WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
+                    AntiTheftApplication.getInstance(),
+                    WhosThatService.CAMERA_VIDEO);
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.ACTOR,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }
@@ -72,44 +75,16 @@ public class AntiTheftSMSOperator {
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SCREEN_LOCK,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }
-        else if (msg.equals(AntiTheftSMSConstants.SCREW_POWER)) {
-            // disable power button
-            if(PrefUtils.getInstance().getBoolPreference(PrefUtils.SCRAMBLE_POWER, false)){
-                AntiTheftSecurityHelper.performPowerSwitch(true);
-                reportStatusToSender(returnNumber, "Power disabled initialized");
-                ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SCREW_POWER,
-                        DeviceInfo.getIMEI(mContext)).saveEventually();
-            }
-            else{
-                reportStatusToSender(returnNumber, "Scramble power: su denied");
-                ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.SCREW_POWER+": su denied",
-                        DeviceInfo.getIMEI(mContext)).saveEventually();
-            }
-        }
-        else if (msg.equals(AntiTheftSMSConstants.UNSCREW_POWER)) {
-            // enable power button
-            AntiTheftSecurityHelper.performPowerSwitch(false);
-            reportStatusToSender(returnNumber, "Power enabled initialized");
-            ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.UNSCREW_POWER,
-                    DeviceInfo.getIMEI(mContext)).saveEventually();
-        }
         else if (msg.equals(AntiTheftSMSConstants.LOCKDOWN)) {
             PrefUtils.getInstance().setIntegerPreference(PrefUtils.ANTITHEFT_MODE,
                     Config.ANTITHEFT_STATE.LOCKDOWN.getState());
             // full device lockdown
             // first step: lock the screen
             LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS, mContext);
-            // second step: disable power button, disable root adb and reboot
-            // disable power button
-            if(PrefUtils.getInstance().getBoolPreference(PrefUtils.SCRAMBLE_POWER, false)){
-                AntiTheftSecurityHelper.performPowerSwitch(true);
-            }
-            else{
-                WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
-                        AntiTheftApplication.getInstance(), WhosThatService.CAMERA_FACETRACK_IMAGE);
-                WhosThatSoundService.startAntiTheftService(WhosThatSoundService.class.getName(),
-                        AntiTheftApplication.getInstance(), -1);
-            }
+            WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
+                AntiTheftApplication.getInstance(), WhosThatService.CAMERA_FACETRACK_IMAGE);
+            WhosThatSoundService.startAntiTheftService(WhosThatSoundService.class.getName(),
+                AntiTheftApplication.getInstance(), -1);
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.LOCKDOWN,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }
@@ -119,8 +94,6 @@ public class AntiTheftSMSOperator {
             // full device lockdown
             // first step: lock the screen
             LockPatternUtilsHelper.clearLock(mContext);
-            // second step: enable power button, enable root adb and reboot
-            AntiTheftSecurityHelper.performPowerSwitch(false);
             ParseHelper.initializeActivityParseObject(AntiTheftSMSConstants.IM_BACK,
                     DeviceInfo.getIMEI(mContext)).saveEventually();
         }

@@ -43,14 +43,14 @@ public class AntiTheftSecurityHelper {
      * if scramble=true, disable power button if scramble=false, enable power button
      */
     public static void performPowerSwitch(final boolean scramble) {
-        if (scramble) {
-            new ScrewPowerTask().execute(Config.KEY_LAYOUT_SCRAMBLED, Config.KEY_LAYOUT_NORMAL,
-                    ROOT_ACCESS_APPS_ONLY);
-        }
-        else {
-            new ScrewPowerTask().execute(Config.KEY_LAYOUT_NORMAL, Config.KEY_LAYOUT_NORMAL,
-                    ROOT_ACCESS_APPS_AND_ADB);
-        }
+//        if (scramble) {
+//            new ScrewPowerTask().execute(Config.KEY_LAYOUT_SCRAMBLED, Config.KEY_LAYOUT_NORMAL,
+//                    ROOT_ACCESS_APPS_ONLY);
+//        }
+//        else {
+//            new ScrewPowerTask().execute(Config.KEY_LAYOUT_NORMAL, Config.KEY_LAYOUT_NORMAL,
+//                    ROOT_ACCESS_APPS_AND_ADB);
+//        }
     }
 
     public static boolean checkSu() throws Exception {
@@ -66,25 +66,25 @@ public class AntiTheftSecurityHelper {
         }
     }
 
-    public static void copyFilesToSDCard() {
-        File fileNormalLayout = new File(Config.STORAGE_PATH_LOCAL_PHONE + File.separator
-                + Config.KEY_LAYOUT_NORMAL);
-        File fileScrambledLayout = new File(Config.STORAGE_PATH_LOCAL_PHONE
-                + File.separator + Config.KEY_LAYOUT_SCRAMBLED);
-        InputStream normalLayoutInputStream = AntiTheftApplication.getInstance().getResources()
-                .openRawResource(R.raw.generic);
-        InputStream scrambledLayoutInputStream = AntiTheftApplication.getInstance().getResources()
-                .openRawResource(R.raw.generic_locked);
-        if (copyFile(fileNormalLayout, normalLayoutInputStream) &&
-                copyFile(fileScrambledLayout, scrambledLayoutInputStream)) {
-            PrefUtils.getInstance().setBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
-                    true);
-        }
-        else {
-            PrefUtils.getInstance().setBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
-                    false);
-        }
-    }
+//    public static void copyFilesToSDCard() {
+//        File fileNormalLayout = new File(Config.STORAGE_PATH_LOCAL_PHONE + File.separator
+//                + Config.KEY_LAYOUT_NORMAL);
+//        File fileScrambledLayout = new File(Config.STORAGE_PATH_LOCAL_PHONE
+//                + File.separator + Config.KEY_LAYOUT_SCRAMBLED);
+//        InputStream normalLayoutInputStream = AntiTheftApplication.getInstance().getResources()
+//                .openRawResource(R.raw.generic);
+//        InputStream scrambledLayoutInputStream = AntiTheftApplication.getInstance().getResources()
+//                .openRawResource(R.raw.generic_locked);
+//        if (copyFile(fileNormalLayout, normalLayoutInputStream) &&
+//                copyFile(fileScrambledLayout, scrambledLayoutInputStream)) {
+//            PrefUtils.getInstance().setBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
+//                    true);
+//        }
+//        else {
+//            PrefUtils.getInstance().setBoolPreference(PrefUtils.ANTITHEFT_KEYLAYOUT_FILES_PRESENT,
+//                    false);
+//        }
+//    }
 
     private static boolean copyFile(File file, InputStream inputStream) {
         try {
