@@ -20,6 +20,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -49,13 +50,12 @@ public class AntiTheftApplication extends Application {
         mInstance = this;
         PrefUtils.init(this);
         ParseHelper.parseInit(this);
-        if (!PrefUtils.getInstance().getBoolPreference(PrefUtils.ANTITHEFT_ENABLED, true)) {
-            //AntiTheftNotifier.notifyAntiTheftState(this);
-            disableAllReceivers();
-        }
-        else {
-            enableAllReceivers();
-        }
+        DeviceInfo.getInstance().registerServiceStateListener();
+        
+        Settings.Global.putInt(getContentResolver(),
+                Settings.Global.DATA_ROAMING, 1);
+        
+        Log.i(TAG,"DATA ROAMING: "+Settings.Global.getInt(getContentResolver(), Settings.Global.DATA_ROAMING, 0));
     }
 
     @Override

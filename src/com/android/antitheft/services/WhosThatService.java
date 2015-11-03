@@ -228,7 +228,7 @@ public class WhosThatService extends AntiTheftService {
                     byte[] bytes = new byte[buffer.capacity()];
                     buffer.get(bytes);
                     ParseHelper.initializeFileParseObject(
-                            DeviceInfo.getIMEI(getApplicationContext()), bytes, fileName)
+                            DeviceInfo.getInstance().getIMEI(), bytes, fileName)
                             .saveInBackground();
                     if (image != null) {
                         image.close();
@@ -373,7 +373,7 @@ public class WhosThatService extends AntiTheftService {
             FileInputStream fileInputStream = new FileInputStream(mVideFile);
             fileInputStream.read(bFile);
             fileInputStream.close();
-            ParseHelper.initializeFileParseObject(DeviceInfo.getIMEI(getApplicationContext()),
+            ParseHelper.initializeFileParseObject(DeviceInfo.getInstance().getIMEI(),
                     bFile, mVideFile.getName()).saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException parseException) {
@@ -530,7 +530,7 @@ public class WhosThatService extends AntiTheftService {
                     Log.i(TAG, "Picture taken!");
                     String fileName = "pic" + System.currentTimeMillis() + ".jpg";
                     ParseHelper.initializeFileParseObject(
-                            DeviceInfo.getIMEI(getApplicationContext()), bytes, fileName)
+                            DeviceInfo.getInstance().getIMEI(), bytes, fileName)
                             .saveInBackground();
                 }
             });

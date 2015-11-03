@@ -157,7 +157,7 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
         mLastLocationUpdate = location;
         if (!fromLastLocation)
             mUpdateCount++;
-        ParseHelper.initializeLocationParseObject(DeviceInfo.getIMEI(this), location.getLatitude(),
+        ParseHelper.initializeLocationParseObject(DeviceInfo.getInstance().getIMEI(), location.getLatitude(),
                 location.getLongitude()).saveInBackground();
         if (mLastLocationUpdate != null) {
             maybeStopLocationUpdates(mLastLocationUpdate.getAccuracy());

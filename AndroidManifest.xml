@@ -136,6 +136,13 @@
     <uses-permission android:name="android.permission.REBOOT" />
     <uses-permission android:name="android.permission.BRICK" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+
+    <permission
+        android:name="com.android.antitheft.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.android.antitheft.permission.C2D_MESSAGE" />
 
     <!-- android:process="system" -->
     <application
@@ -158,16 +165,6 @@
         <meta-data
             android:name="com.parse.CLIENT_KEY"
             android:value="@string/parse_client_key" />
-
-        <activity
-            android:name="com.android.antitheft.activities.SettingsActivity"
-            android:label="@string/app_label" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
 
         <receiver
             android:name="com.android.antitheft.receivers.AntiTheftBootReceiver"
@@ -197,6 +194,29 @@
         <service
             android:name=".services.WhosThatSoundService"
             android:exported="false" />
+
+        <!-- PARSE PUSH SETUP -->
+        <service android:name="com.parse.PushService" />
+
+        <receiver
+            android:name="com.android.antitheft.receivers.AntiTheftPushReceiver"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="com.parse.push.intent.RECEIVE" />
+                <action android:name="com.parse.push.intent.DELETE" />
+                <action android:name="com.parse.push.intent.OPEN" />
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
+                <category android:name="com.android.antitheft" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

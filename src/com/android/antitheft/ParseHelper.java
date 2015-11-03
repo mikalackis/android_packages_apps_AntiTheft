@@ -12,6 +12,7 @@ import com.parse.ParseObject;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseFile;
 import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 public class ParseHelper {
 
@@ -44,7 +45,7 @@ public class ParseHelper {
     }
 
     public static void antiTheftOnline(final Context context) {
-        ParseHelper.initializeActivityParseObject("AntiTheft online", DeviceInfo.getIMEI(context))
+        ParseHelper.initializeActivityParseObject("AntiTheft online", DeviceInfo.getInstance().getIMEI())
                 .saveEventually();
         int mCurrentState = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
                 Config.ANTITHEFT_STATE.NORMAL.getState());
@@ -61,6 +62,7 @@ public class ParseHelper {
     
     public static void parseInit(final Context context){
         Parse.initialize(context);
+        ParseInstallation.getCurrentInstallation().saveInBackground();
         if (Config.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         }

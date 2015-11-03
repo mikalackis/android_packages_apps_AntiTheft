@@ -167,7 +167,7 @@ public class WhosThatSoundService extends AntiTheftService implements
             FileInputStream fileInputStream = new FileInputStream(mRecorder.sampleFile());
             fileInputStream.read(bFile);
             fileInputStream.close();
-            ParseHelper.initializeFileParseObject(DeviceInfo.getIMEI(getApplicationContext()),
+            ParseHelper.initializeFileParseObject(DeviceInfo.getInstance().getIMEI(),
                     bFile, mRecorder.sampleFile().getName()).saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException parseException) {
