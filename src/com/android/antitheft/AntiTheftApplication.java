@@ -21,7 +21,10 @@ import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.provider.Settings;
+import android.provider.Settings.SettingNotFoundException;
 import android.telephony.PhoneStateListener;
+import android.telephony.Rlog;
+import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -31,6 +34,7 @@ import com.android.antitheft.receivers.AntiTheftSMSReceiver;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.util.AntiTheftNotifier;
 import com.android.antitheft.util.PrefUtils;
+import com.android.internal.telephony.SubscriptionController;
 
 public class AntiTheftApplication extends Application {
 
@@ -57,6 +61,51 @@ public class AntiTheftApplication extends Application {
         
         Log.i(TAG,"DATA ROAMING: "+Settings.Global.getInt(getContentResolver(), Settings.Global.DATA_ROAMING, 0));
     }
+    
+    
+//    public static int getDataSubscription() {
+//        int subId = SubscriptionManager.INVALID_SUBSCRIPTION_ID;
+//
+//        try {
+//            subId = Settings.Global.getInt(sContext.getContentResolver(),
+//                    Settings.Global.MULTI_SIM_DATA_CALL_SUBSCRIPTION);
+//        } catch (SettingNotFoundException snfe) {
+//            Rlog.e(LOG_TAG, "Settings Exception Reading Dual Sim Data Call Values");
+//        }
+//
+//        // FIXME can this be removed? We should not set defaults
+//        int phoneId = SubscriptionController.getInstance().getPhoneId(subId);
+//        if (phoneId < 0 || phoneId >= TelephonyManager.getDefault().getPhoneCount()) {
+//            subId = 0;
+//            Rlog.i(LOG_TAG, "Subscription is invalid..." + subId + " Set to 0");
+//            setDataSubscription(subId);
+//        }
+//
+//        return subId;
+//    }
+//    
+//    //FIXME can this be removed, it is only called in getDataSubscription
+//    static public void setDataSubscription(int subId) {
+//        boolean enabled;
+//
+//        Settings.Global.putInt(sContext.getContentResolver(),
+//                Settings.Global.MULTI_SIM_DATA_CALL_SUBSCRIPTION, subId);
+//        Rlog.d(LOG_TAG, "setDataSubscription: " + subId);
+//
+//        // Update the current mobile data flag
+//        enabled = Settings.Global.getInt(sContext.getContentResolver(),
+//                Settings.Global.MOBILE_DATA + subId, 0) != 0;
+//        Settings.Global.putInt(sContext.getContentResolver(),
+//                Settings.Global.MOBILE_DATA, enabled ? 1 : 0);
+//        Rlog.d(LOG_TAG, "set mobile_data: " + enabled);
+//
+//        // Update the current data roaming flag
+//        enabled = Settings.Global.getInt(sContext.getContentResolver(),
+//                Settings.Global.DATA_ROAMING + subId, 0) != 0;
+//        Settings.Global.putInt(sContext.getContentResolver(),
+//                Settings.Global.DATA_ROAMING, enabled ? 1 : 0);
+//        Rlog.d(LOG_TAG, "set data_roaming: " + enabled);
+//    }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
