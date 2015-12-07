@@ -1,93 +1,275 @@
+/*
+ * Copyright (C) 2014 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
 package com.android.antitheft.widget;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.content.res.TypedArray;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.AttributeSet;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 
-/**
- * @author mikalackis Helper class for storing shared prefferences
- */
-public class SwitchBar {
+import android.widget.Switch;
+import android.widget.TextView;
 
-    public static final String SHARED_PREFS = "antitheft";
+import java.util.ArrayList;
 
-    /** keys */
-    public static final String ANTITHEFT_ENABLED = "antitheft_enabled";
+import com.android.antitheft.R;
 
-    public static final String ANTITHEFT_MODE = "antitheft_mode";
+public class SwitchBar extends LinearLayout implements CompoundButton.OnCheckedChangeListener,
+        View.OnClickListener {
 
-    private static Context mContext;
+    public static interface OnSwitchChangeListener {
+        /**
+         * Called when the checked state of the Switch has changed.
+         * 
+         * @param switchView The Switch view whose state has changed.
+         * @param isChecked The new checked state of switchView.
+         */
+        void onSwitchChanged(Switch switchView, boolean isChecked);
+    }
 
-    static private SwitchBar instance;
+    private ToggleSwitch mSwitch;
+    private TextView mTextView;
 
-    static public void init(final Context ctx) {
-        if (null == instance) {
-            instance = new SwitchBar(ctx);
+    private int mStateOnLabel = R.string.switch_on_text;
+    private int mStateOffLabel = R.string.switch_off_text;
+
+    private ArrayList<OnSwitchChangeListener> mSwitchChangeListeners =
+            new ArrayList<OnSwitchChangeListener>();
+
+    // private static int[] MARGIN_ATTRIBUTES = {
+    // R.attr.switchBarMarginStart, R.attr.switchBarMarginEnd};
+
+    public SwitchBar(Context context) {
+        this(context, null);
+    }
+
+    public SwitchBar(Context context, AttributeSet attrs) {
+        this(context, attrs, 0);
+    }
+
+    public SwitchBar(Context context, AttributeSet attrs, int defStyleAttr) {
+        this(context, attrs, defStyleAttr, 0);
+    }
+
+    public SwitchBar(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+        super(context, attrs, defStyleAttr, defStyleRes);
+
+        LayoutInflater.from(context).inflate(R.layout.switch_bar, this);
+
+        // final TypedArray a = context.obtainStyledAttributes(attrs, MARGIN_ATTRIBUTES);
+        int switchBarMarginStart = 0;// (int) a.getDimension(0, 0);
+        int switchBarMarginEnd = 0;// (int) a.getDimension(1, 0);
+        // a.recycle();
+
+        mTextView = (TextView) findViewById(R.id.switch_text);
+        mTextView.setText(R.string.switch_off_text);
+        ViewGroup.MarginLayoutParams lp = (MarginLayoutParams) mTextView.getLayoutParams();
+        lp.setMarginStart(switchBarMarginStart);
+
+        mSwitch = (ToggleSwitch) findViewById(R.id.switch_widget);
+        // Prevent onSaveInstanceState() to be called as we are managing the state of the Switch
+        // on our own
+        mSwitch.setSaveEnabled(false);
+        lp = (MarginLayoutParams) mSwitch.getLayoutParams();
+        lp.setMarginEnd(switchBarMarginEnd);
+
+        addOnSwitchChangeListener(new OnSwitchChangeListener() {
+            @Override
+            public void onSwitchChanged(Switch switchView, boolean isChecked) {
+                setTextViewLabel(isChecked);
+            }
+        });
+
+        setOnClickListener(this);
+
+        // Default is hide
+        setVisibility(View.GONE);
+    }
+
+    public void setOnStateOnLabel(int stringRes) {
+        mStateOnLabel = stringRes;
+    }
+
+    public void setOnStateOffLabel(int stringRes) {
+        mStateOffLabel = stringRes;
+    }
+
+    public void setTextViewLabel(boolean isChecked) {
+        mTextView.setText(isChecked ? mStateOnLabel : mStateOffLabel);
+    }
+
+    public void setChecked(boolean checked) {
+        setTextViewLabel(checked);
+        mSwitch.setChecked(checked);
+    }
+
+    public void setCheckedInternal(boolean checked) {
+        setTextViewLabel(checked);
+        mSwitch.setCheckedInternal(checked);
+    }
+
+    public boolean isChecked() {
+        return mSwitch.isChecked();
+    }
+
+    public void setEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+        mTextView.setEnabled(enabled);
+        mSwitch.setEnabled(enabled);
+    }
+
+    public final ToggleSwitch getSwitch() {
+        return mSwitch;
+    }
+
+    public void show() {
+        if (!isShowing()) {
+            setVisibility(View.VISIBLE);
+            mSwitch.setOnCheckedChangeListener(this);
         }
     }
 
-    static public SwitchBar getInstance() {
-        return instance;
+    public void hide() {
+        if (isShowing()) {
+            setVisibility(View.GONE);
+            mSwitch.setOnCheckedChangeListener(null);
+        }
     }
 
-    private SwitchBar(final Context ctx) {
-        mContext = ctx;
+    public boolean isShowing() {
+        return (getVisibility() == View.VISIBLE);
     }
 
-    public Integer getIntegerPreference(final String key, final int defaultValue) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        return settings.getInt(key, defaultValue);
+    @Override
+    public void onClick(View v) {
+        final boolean isChecked = !mSwitch.isChecked();
+        setChecked(isChecked);
     }
 
-    public void setIntegerPreference(final String key, final Integer value) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = settings.edit();
-        editor.putInt(key, value);
-        editor.apply();
+    public void propagateChecked(boolean isChecked) {
+        final int count = mSwitchChangeListeners.size();
+        for (int n = 0; n < count; n++) {
+            mSwitchChangeListeners.get(n).onSwitchChanged(mSwitch, isChecked);
+        }
     }
 
-    public long getLongPreference(final String key, final long defaultValue) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        return settings.getLong(key, defaultValue);
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        propagateChecked(isChecked);
     }
 
-    public void setLongPreference(final String key, final long value) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = settings.edit();
-        editor.putLong(key, value);
-        editor.apply();
+    public void addOnSwitchChangeListener(OnSwitchChangeListener listener) {
+        if (mSwitchChangeListeners.contains(listener)) {
+            throw new IllegalStateException("Cannot add twice the same OnSwitchChangeListener");
+        }
+        mSwitchChangeListeners.add(listener);
     }
 
-    public boolean getBoolPreference(final String key, final boolean defaultValue) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        return settings.getBoolean(key, defaultValue);
+    public void removeOnSwitchChangeListener(OnSwitchChangeListener listener) {
+        if (!mSwitchChangeListeners.contains(listener)) {
+            throw new IllegalStateException("Cannot remove OnSwitchChangeListener");
+        }
+        mSwitchChangeListeners.remove(listener);
     }
 
-    public void setBoolPreference(final String key, final boolean value) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = settings.edit();
-        editor.putBoolean(key, value);
-        editor.apply();
+    static class SavedState extends BaseSavedState {
+        boolean checked;
+        boolean visible;
+        int resOnLabel;
+        int resOffLabel;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        /**
+         * Constructor called from {@link #CREATOR}
+         */
+        private SavedState(Parcel in) {
+            super(in);
+            checked = (Boolean) in.readValue(null);
+            visible = (Boolean) in.readValue(null);
+            resOnLabel = in.readInt();
+            resOffLabel = in.readInt();
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeValue(checked);
+            out.writeValue(visible);
+            out.writeInt(resOnLabel);
+            out.writeInt(resOffLabel);
+        }
+
+        @Override
+        public String toString() {
+            return "SwitchBar.SavedState{"
+                    + Integer.toHexString(System.identityHashCode(this))
+                    + " checked=" + checked
+                    + " visible=" + visible
+                    + " resOnLabel = " + resOnLabel
+                    + " resOffLabel = " + resOffLabel
+                    + "}";
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR = new Parcelable.Creator<SavedState>() {
+            public SavedState createFromParcel(Parcel in) {
+                return new SavedState(in);
+            }
+
+            public SavedState[] newArray(int size) {
+                return new SavedState[size];
+            }
+        };
     }
 
-    public String getStringPreference(final String key, final String defaultValue) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        return settings.getString(key, defaultValue);
+    @Override
+    public Parcelable onSaveInstanceState() {
+        Parcelable superState = super.onSaveInstanceState();
+
+        SavedState ss = new SavedState(superState);
+        ss.checked = mSwitch.isChecked();
+        ss.visible = isShowing();
+        ss.resOnLabel = mStateOnLabel;
+        ss.resOffLabel = mStateOffLabel;
+        return ss;
     }
 
-    public void setStringPreference(final String key, final String value) {
-        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
-                Context.MODE_PRIVATE);
-        final SharedPreferences.Editor editor = settings.edit();
-        editor.putString(key, value);
-        editor.apply();
-    }
+    @Override
+    public void onRestoreInstanceState(Parcelable state) {
+        SavedState ss = (SavedState) state;
 
+        super.onRestoreInstanceState(ss.getSuperState());
+
+        mSwitch.setCheckedInternal(ss.checked);
+        setOnStateOnLabel(ss.resOnLabel);
+        setOnStateOffLabel(ss.resOffLabel);
+        setTextViewLabel(ss.checked);
+        setVisibility(ss.visible ? View.VISIBLE : View.GONE);
+        mSwitch.setOnCheckedChangeListener(ss.visible ? this : null);
+
+        requestLayout();
+    }
 }

@@ -53,9 +53,22 @@ public class AntiTheftApplication extends Application {
 
         mInstance = this;
         PrefUtils.init(this);
-        ParseHelper.parseInit(this);
-        DeviceInfo.getInstance().registerServiceStateListener();
-        
+        checkParseSetup();
+    }
+    
+    private void checkParseSetup(){
+        String parseAppId = getString(R.string.parse_app_id); 
+        String parseClientKey = getString(R.string.parse_client_key);
+        if((parseAppId != null && parseAppId.length()>0) &&
+                (parseClientKey != null && parseClientKey.length()>0)){
+            ParseHelper.parseInit(this);
+            AntiTheftNotifier.notifyAntiTheftState(this,true);
+            DeviceInfo.getInstance().registerServiceStateListener();
+        }
+        else{
+            AntiTheftNotifier.notifyAntiTheftState(this,false);
+            disableAllReceivers();
+        }
     }
 
     @Override

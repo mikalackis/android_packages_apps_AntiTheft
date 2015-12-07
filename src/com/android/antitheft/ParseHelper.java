@@ -7,6 +7,7 @@ import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
 import com.android.antitheft.services.DeviceFinderService;
 import com.android.antitheft.services.WhosThatService;
 import com.android.antitheft.services.WhosThatSoundService;
+import com.android.antitheft.util.AntiTheftNotifier;
 import com.android.antitheft.util.PrefUtils;
 import com.parse.ParseObject;
 import com.parse.ParseGeoPoint;
@@ -45,7 +46,8 @@ public class ParseHelper {
     }
 
     public static void antiTheftOnline(final Context context) {
-        ParseHelper.initializeActivityParseObject("AntiTheft online", DeviceInfo.getInstance().getIMEI())
+        ParseHelper.initializeActivityParseObject("AntiTheft online",
+                DeviceInfo.getInstance().getIMEI())
                 .saveEventually();
         int mCurrentState = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
                 Config.ANTITHEFT_STATE.NORMAL.getState());
@@ -59,8 +61,8 @@ public class ParseHelper {
         DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
                 AntiTheftApplication.getInstance(), mCurrentState);
     }
-    
-    public static void parseInit(final Context context){
+
+    public static void parseInit(final Context context) {
         Parse.initialize(context);
         ParseInstallation.getCurrentInstallation().saveInBackground();
         if (Config.DEBUG) {

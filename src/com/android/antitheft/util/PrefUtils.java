@@ -16,6 +16,10 @@ public class PrefUtils {
 
     public static final String ANTITHEFT_MODE = "antitheft_mode";
 
+    public static final String PARSE_APP_ID = "parse_app_id";
+
+    public static final String PARSE_CLIENT_KEY = "parse_client_key";
+
     private static Context mContext;
 
     static private PrefUtils instance;

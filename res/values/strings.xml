@@ -22,9 +22,8 @@
     
     <!-- notification strings -->
     <string name="notification_title">AntiTheft Status</string>
-    <string name="notification_content">AntiTheft present. Click to enable</string>
-    <string name="notification_big_title">AntiTheft Status</string>
-    <string name="notification_big_content">AntiTheft present. Click Enable button to set it up.</string>
+    <string name="notification_antitheft_enabled">AntiTheft present. We are watching...</string>
+    <string name="notification_antitheft_disabled">AntiTheft disabled. Click Enable button to set it up.</string>
     
     <!--  preferences screen -->
     <string name="preference_title">AntiTheft Settings</string>		
