@@ -19,6 +19,8 @@ public class PrefUtils {
     public static final String PARSE_APP_ID = "parse_app_id";
 
     public static final String PARSE_CLIENT_KEY = "parse_client_key";
+    
+    public static final String PARSE_LAST_CONFIG_CHECK = "parse_last_config_check";
 
     private static Context mContext;
 

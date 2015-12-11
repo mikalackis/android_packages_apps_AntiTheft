@@ -28,6 +28,7 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
+import com.android.antitheft.commands.AntiTheftCommandUtil;
 import com.android.antitheft.listeners.AntiTheftPhoneStateListener;
 import com.android.antitheft.receivers.AntiTheftBootReceiver;
 import com.android.antitheft.receivers.AntiTheftSMSReceiver;
@@ -53,24 +54,12 @@ public class AntiTheftApplication extends Application {
 
         mInstance = this;
         PrefUtils.init(this);
-        checkParseSetup();
+        ParseHelper.parseInit(this);
+        AntiTheftNotifier.notifyAntiTheftState(this,true);
+        DeviceInfo.getInstance().registerServiceStateListener();
+        AntiTheftCommandUtil.initCommands();
     }
     
-    private void checkParseSetup(){
-        String parseAppId = getString(R.string.parse_app_id); 
-        String parseClientKey = getString(R.string.parse_client_key);
-        if((parseAppId != null && parseAppId.length()>0) &&
-                (parseClientKey != null && parseClientKey.length()>0)){
-            ParseHelper.parseInit(this);
-            AntiTheftNotifier.notifyAntiTheftState(this,true);
-            DeviceInfo.getInstance().registerServiceStateListener();
-        }
-        else{
-            AntiTheftNotifier.notifyAntiTheftState(this,false);
-            disableAllReceivers();
-        }
-    }
-
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
     }

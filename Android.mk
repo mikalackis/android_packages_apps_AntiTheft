@@ -6,6 +6,7 @@ LOCAL_JAVA_LIBRARIES := telephony-common
 LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-palette \
     android-support-v4 \
     android-support-v13 \
+    android-support-v7-recyclerview \
     android-visualizer \
     org.cyanogenmod.platform.sdk \
     parse \

@@ -14,8 +14,14 @@ import com.parse.ParseGeoPoint;
 import com.parse.ParseFile;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
+import com.parse.ConfigCallback;
+import com.parse.ParseConfig;
+import com.parse.ParseException;
 
 public class ParseHelper {
+
+    private static ParseConfig parseConfig;
+    private static long configLastFetchedTime;
 
     public static ParseObject initializeActivityParseObject(final String status,
             final String imei) {
@@ -67,6 +73,31 @@ public class ParseHelper {
         ParseInstallation.getCurrentInstallation().saveInBackground();
         if (Config.DEBUG) {
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
+        }
+    }
+
+    public static void fetchConfigIfNeeded() {
+        final long configRefreshInterval = 60 * 60; // 1 hour
+
+        if (parseConfig == null ||
+                System.currentTimeMillis() - configLastFetchedTime > configRefreshInterval) {
+            // Set the config to current, just to load the cache
+            parseConfig = ParseConfig.getCurrentConfig();
+
+            // Set the current time, to flag that the operation started and prevent double fetch
+            ParseConfig.getInBackground(new ConfigCallback() {
+                @Override
+                public void done(ParseConfig parseConfig, ParseException e) {
+                    if (e == null) {
+                        // Yay, retrieved successfully
+                        parseConfig = parseConfig;
+                        configLastFetchedTime = System.currentTimeMillis();
+                    } else {
+                        // Fetch failed, reset the time
+                        configLastFetchedTime = 0;
+                    }
+                }
+            });
         }
     }
 
