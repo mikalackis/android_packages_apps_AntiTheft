@@ -30,10 +30,21 @@
     <string name="parse_data_title">Parse data</string>		
     <string name="parse_app_id_x">Parse Application ID</string>		
     <string name="parse_client_key_x">Parse Client Key</string>		
-    <string name="scramble_power_title">Scramble power button option</string>		
+    <string name="scramble_power_title">Scramble power button option</string>	
+    
+    <!-- status fragment -->
+    <string name="button_report_status">Report status</string>	
+    <string name="last_update">Last server update:</string>
+    <string name="last_command">Last command performed:</string>
     		
     <!-- switch strings -->		
     <string name="switch_on_text">On</string>		
     <string name="switch_off_text">Off</string>
+    
+    <!-- parse settings strings -->
+    <string name="parse_info">These are Parse keys used inside the APP. If you change them, you will need to reboot your device in order for changes to be taken into consideration.</string>
+    <string name="button_update_config">Update Parse Configuration</string>
+    <string name="app_id_text">Current application ID:</string>
+    <string name="client_key_text">Current client key:</string>
 
 </resources>

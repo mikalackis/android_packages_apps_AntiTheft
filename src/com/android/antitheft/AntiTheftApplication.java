@@ -55,7 +55,6 @@ public class AntiTheftApplication extends Application {
         mInstance = this;
         PrefUtils.init(this);
         ParseHelper.parseInit(this);
-        AntiTheftNotifier.notifyAntiTheftState(this,true);
         DeviceInfo.getInstance().registerServiceStateListener();
         AntiTheftCommandUtil.initCommands();
     }

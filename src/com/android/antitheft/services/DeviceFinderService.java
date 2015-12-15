@@ -19,6 +19,7 @@ package com.android.antitheft.services;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
+import com.android.antitheft.listeners.ParseSaveCallback;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -158,7 +159,7 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
         if (!fromLastLocation)
             mUpdateCount++;
         ParseHelper.initializeLocationParseObject(DeviceInfo.getInstance().getIMEI(), location.getLatitude(),
-                location.getLongitude()).saveInBackground();
+                location.getLongitude()).saveInBackground(new ParseSaveCallback("DeviceFinder"));
         if (mLastLocationUpdate != null) {
             maybeStopLocationUpdates(mLastLocationUpdate.getAccuracy());
         }

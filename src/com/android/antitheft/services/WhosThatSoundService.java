@@ -16,6 +16,7 @@ import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
+import com.android.antitheft.util.PrefUtils;
 
 import android.app.Service;
 import android.content.Context;
@@ -171,7 +172,14 @@ public class WhosThatSoundService extends AntiTheftService implements
                     bFile, mRecorder.sampleFile().getName()).saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException parseException) {
-                    Log.i(TAG, "SOUND UPLOADED");
+                    if (parseException == null) {
+                        Log.i(TAG, "SOUND UPLOADED");
+                        PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_TIME,
+                                System.currentTimeMillis()+":saveSound");
+                    } else {
+                        PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_TIME,
+                                -1+":saveSound");
+                    }
                     mRecorder.delete();
                     stopSelf();
                 }

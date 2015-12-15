@@ -22,21 +22,31 @@ import java.util.List;
 import java.util.Set;
 
 import com.android.antitheft.R;
+import com.android.antitheft.eventbus.StatusUpdateEvent;
 import com.android.antitheft.fragment.ControlFragment;
 import com.android.antitheft.fragment.StatusFragment;
 import com.android.antitheft.widget.SwitchBar;
 
 import android.app.Activity;
+import android.content.Intent;
 
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends Activity {
 
     private static final String LOG_TAG = "MainActivity";
+    
+    private EventBus mBus = EventBus.getDefault();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +59,49 @@ public class MainActivity extends Activity {
                 StatusFragment.createFragment()).commit();
         getFragmentManager().beginTransaction().replace(R.id.control_fragment,
                 ControlFragment.createFragment()).commit();
+    }
+    
+    @Override
+    public void onStart() {
+        super.onStart();
+        mBus.register(this);
+    }
+
+    @Override
+    public void onStop() {
+        mBus.unregister(this);
+        super.onStop();
+    }
+
+    public void onEventMainThread(StatusUpdateEvent event){
+        StatusFragment statusFrag = (StatusFragment) getFragmentManager().findFragmentById(R.id.status_fragment);
+        if(statusFrag!=null){
+            statusFrag.updateStatusData(event);
+        }
+        else{
+            Toast.makeText(this, "StatusFragment null", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.options_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.parse_settings:{
+                Intent settingsIntent = new Intent(MainActivity.this,ParseSettingsActivity.class);
+                startActivity(settingsIntent);
+                return true;
+            }
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

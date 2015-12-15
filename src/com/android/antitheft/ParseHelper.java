@@ -2,7 +2,9 @@
 package com.android.antitheft;
 
 import android.content.Context;
+import android.telecom.Log;
 
+import com.android.antitheft.listeners.ParseSaveCallback;
 import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
 import com.android.antitheft.services.DeviceFinderService;
 import com.android.antitheft.services.WhosThatService;
@@ -19,6 +21,8 @@ import com.parse.ParseConfig;
 import com.parse.ParseException;
 
 public class ParseHelper {
+    
+    private static final String TAG = "ParseHelper";
 
     private static ParseConfig parseConfig;
     private static long configLastFetchedTime;
@@ -54,7 +58,7 @@ public class ParseHelper {
     public static void antiTheftOnline(final Context context) {
         ParseHelper.initializeActivityParseObject("AntiTheft online",
                 DeviceInfo.getInstance().getIMEI())
-                .saveEventually();
+                .saveEventually(new ParseSaveCallback("AntiTheft online"));
         int mCurrentState = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
                 Config.ANTITHEFT_STATE.NORMAL.getState());
         if (mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
@@ -69,13 +73,25 @@ public class ParseHelper {
     }
 
     public static void parseInit(final Context context) {
-        Parse.initialize(context);
-        ParseInstallation.getCurrentInstallation().saveInBackground();
-        if (Config.DEBUG) {
+        if (Config.DEBUG){
             Parse.setLogLevel(Parse.LOG_LEVEL_VERBOSE);
         }
+        else{
+            Parse.setLogLevel(Parse.LOG_LEVEL_ERROR);
+        }
+        String appId = PrefUtils.getInstance().getStringPreference(PrefUtils.PARSE_APP_ID, null);
+        String clientKey = PrefUtils.getInstance().getStringPreference(PrefUtils.PARSE_CLIENT_KEY, null);
+        if(appId!=null && appId.length()>0 && clientKey!=null && clientKey.length()>0){
+            Parse.initialize(context, appId, clientKey);
+            ParseInstallation.getCurrentInstallation().saveInBackground();
+            AntiTheftNotifier.notifyAntiTheftState(context,true);
+        }
+        else{
+            AntiTheftNotifier.notifyAntiTheftState(context,false);
+        }
+        
     }
-
+    
     public static void fetchConfigIfNeeded() {
         final long configRefreshInterval = 60 * 60; // 1 hour
 

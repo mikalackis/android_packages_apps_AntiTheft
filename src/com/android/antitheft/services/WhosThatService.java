@@ -16,6 +16,7 @@ import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.ParseHelper;
+import com.android.antitheft.listeners.ParseSaveCallback;
 
 import android.app.Service;
 import android.content.Context;
@@ -229,7 +230,7 @@ public class WhosThatService extends AntiTheftService {
                     buffer.get(bytes);
                     ParseHelper.initializeFileParseObject(
                             DeviceInfo.getInstance().getIMEI(), bytes, fileName)
-                            .saveInBackground();
+                            .saveInBackground(new ParseSaveCallback("WhosThatService"));
                     if (image != null) {
                         image.close();
                     }

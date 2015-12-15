@@ -21,6 +21,10 @@ public class PrefUtils {
     public static final String PARSE_CLIENT_KEY = "parse_client_key";
     
     public static final String PARSE_LAST_CONFIG_CHECK = "parse_last_config_check";
+    
+    public static final String PARSE_CONFIG_CHANGED = "parse_config_changed";
+    
+    public static final String PARSE_LAST_UPDATE_TIME = "parse_last_update_time";
 
     private static Context mContext;
 
@@ -93,6 +97,14 @@ public class PrefUtils {
                 Context.MODE_PRIVATE);
         final SharedPreferences.Editor editor = settings.edit();
         editor.putString(key, value);
+        editor.apply();
+    }
+    
+    public void removePreference(final String key){
+        final SharedPreferences settings = mContext.getSharedPreferences(SHARED_PREFS,
+                Context.MODE_PRIVATE);
+        final SharedPreferences.Editor editor = settings.edit();
+        editor.remove(key);
         editor.apply();
     }
 

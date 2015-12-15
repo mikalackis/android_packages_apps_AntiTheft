@@ -20,46 +20,56 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:gravity="center"
-    android:orientation="vertical" >
-    
+    android:layout_margin="20dp" >
+
     <TextView
+        android:id="@+id/textStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="@string/parse_info"
         android:textColor="@android:color/white"
-        android:text="@string/last_update"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/txt_last_update"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/green"
-        android:textStyle="bold"
-        android:textSize="@dimen/status_text_size" />
-    
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
-        android:text="@string/last_command"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/txt_last_command"
-        android:layout_marginTop="10dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/green"
-        android:textSize="@dimen/status_text_size"
-        android:textStyle="bold" />
-
-    <Button
-        android:id="@+id/btn_report_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="@string/button_report_status" />
+        android:text="@string/app_id_text"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/parse_app_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:gravity="left|top"
+        android:text="@string/parse_app_id" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/client_key_text"
+        android:textColor="@android:color/white"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/parse_client_key"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:gravity="left|top"
+        android:text="@string/parse_client_key" />
+
+    <Button
+        android:id="@+id/btn_update_parse_setup"
+        android:layout_marginTop="20dp"
+        android:padding="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/button_update_config" />
 
 </LinearLayout>

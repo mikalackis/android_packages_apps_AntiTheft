@@ -11,7 +11,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-palette \
     org.cyanogenmod.platform.sdk \
     parse \
     bolts \
-    play_78
+    play_78 \
+    eventbus
 
 LOCAL_MODULE_TAGS := optional
 
@@ -43,7 +44,8 @@ include $(CLEAR_VARS)
 LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
     parse:libs/parse-android-1.10.1.jar \
     bolts:libs/bolts-android-1.2.1.jar \
-    play_78:google-play-services_lib/libs/google-play-services.jar
+    play_78:google-play-services_lib/libs/google-play-services.jar \
+    eventbus:libs/eventbus-2.4.1.jar
 
 include $(BUILD_MULTI_PREBUILT)
 

@@ -16,7 +16,7 @@ import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 import com.android.antitheft.R;
-import com.android.antitheft.activities.SettingsActivity;
+import com.android.antitheft.activities.MainActivity;
 
 import java.io.File;
 
@@ -27,13 +27,14 @@ public class AntiTheftNotifier {
     }
 
     public static void notifyAntiTheftState(Context context, boolean state) {
-        
-        String contentText = state ? context.getString(R.string.notification_antitheft_enabled) : context.getString(R.string.notification_antitheft_disabled);
+
+        String contentText = state ? context.getString(R.string.notification_antitheft_enabled)
+                : context.getString(R.string.notification_antitheft_disabled);
 
         NotificationCompat.BigTextStyle style = new NotificationCompat.BigTextStyle()
                 .setBigContentTitle(context.getString(R.string.notification_title))
                 .bigText(contentText);
-        
+
         NotificationCompat.Builder builder = createBaseContentBuilder(context)
                 .setSmallIcon(android.R.drawable.arrow_up_float)
                 .setContentTitle(context.getString(R.string.notification_title))
@@ -61,7 +62,7 @@ public class AntiTheftNotifier {
     // }
 
     private static NotificationCompat.Builder createBaseContentBuilder(Context context) {
-        Intent installIntent = new Intent(context, SettingsActivity.class);
+        Intent installIntent = new Intent(context, MainActivity.class);
         PendingIntent contentIntent = PendingIntent.getActivity(context, 1,
                 installIntent, PendingIntent.FLAG_ONE_SHOT | PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -73,7 +74,7 @@ public class AntiTheftNotifier {
     }
 
     private static PendingIntent createInstallPendingIntent(Context context) {
-        Intent installIntent = new Intent(context, SettingsActivity.class);
+        Intent installIntent = new Intent(context, MainActivity.class);
 
         return PendingIntent.getActivity(
                 context,
