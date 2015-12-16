@@ -15,7 +15,9 @@ import java.util.List;
 import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
-import com.android.antitheft.ParseHelper;
+import com.android.antitheft.listeners.ParseSaveCallback;
+import com.android.antitheft.parse.FileParseObject;
+import com.android.antitheft.parse.ParseHelper;
 import com.android.antitheft.util.PrefUtils;
 
 import android.app.Service;
@@ -54,6 +56,8 @@ public class WhosThatSoundService extends AntiTheftService implements
     public static final int SOUND_STOP_RECORDING = 1;
 
     private static final int SOUND_RECORDING_LENGHT = 10000; // MILISECONDS
+
+    private static final int PAUSE_BETWEEN_RECORDINGS = 10000;
 
     // Handler thread off of ui
     private HandlerThread mRecordThread;
@@ -168,22 +172,19 @@ public class WhosThatSoundService extends AntiTheftService implements
             FileInputStream fileInputStream = new FileInputStream(mRecorder.sampleFile());
             fileInputStream.read(bFile);
             fileInputStream.close();
-            ParseHelper.initializeFileParseObject(DeviceInfo.getInstance().getIMEI(),
-                    bFile, mRecorder.sampleFile().getName()).saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException parseException) {
-                    if (parseException == null) {
-                        Log.i(TAG, "SOUND UPLOADED");
-                        PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_TIME,
-                                System.currentTimeMillis()+":saveSound");
-                    } else {
-                        PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_TIME,
-                                -1+":saveSound");
-                    }
-                    mRecorder.delete();
-                    stopSelf();
-                }
-            });
+            FileParseObject fileObject = new FileParseObject();
+            fileObject.setImei(DeviceInfo.getInstance().getIMEI());
+            fileObject.setParseFile(bFile, mRecorder.sampleFile().getName());
+            fileObject.saveInBackground(new ParseSaveCallback("Sound"));
+            if (PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
+                    Config.ANTITHEFT_STATE.NORMAL.getState()) == Config.ANTITHEFT_STATE.LOCKDOWN
+                    .getState()) {
+                Thread.sleep(PAUSE_BETWEEN_RECORDINGS);
+            }
+            else{
+                stopSelf();
+            }
+            mRecorder.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }

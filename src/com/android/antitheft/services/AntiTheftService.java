@@ -8,6 +8,9 @@ import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.antitheft.commands.AntiTheftCommandUtil;
+
+
 public abstract class AntiTheftService extends Service {
 
     public static final String SERVICE_PARAM = "service_param";
@@ -33,11 +36,12 @@ public abstract class AntiTheftService extends Service {
             sWakeLock.acquire();
         }
         TAG = serviceName;
+        
         Intent intent = new Intent(context, serviceClass);
         intent.putExtra(SERVICE_PARAM, state);
         context.startService(intent);
     }
-
+    
     @Override
     public void onDestroy() {
         super.onDestroy();

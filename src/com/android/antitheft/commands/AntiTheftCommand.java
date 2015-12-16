@@ -31,5 +31,7 @@ public abstract class AntiTheftCommand {
     }
 
     public abstract void executeCommand(final String action);
+    
+    //public abstract void stopSelf();
 
 }

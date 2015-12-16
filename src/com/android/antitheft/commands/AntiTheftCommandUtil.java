@@ -1,15 +1,16 @@
 package com.android.antitheft.commands;
 
+
 import java.util.HashMap;
 
 public class AntiTheftCommandUtil {
     
     // take picture command
-    public static final String SMILE = "smile";
+    public static final String SMILE = "smile"; // face track take photo
  // take picture command
-    public static final String SMILE_NOW = "smile_now";
+    public static final String SMILE_NOW = "smile_now"; // instant photo
     // stop picture command
-    public static final String STOP_SMILE = "stop_smile";
+    public static final String STOP_SMILE = "stop_smile"; // stop face track
     // take video command
     public static final String ACTOR = "actor";
     // give me my location
@@ -48,15 +49,15 @@ public class AntiTheftCommandUtil {
     
     public static void initCommands(){
         COMMAND_MAP.clear();
-        COMMAND_MAP.put(SMILE, new PictureCommand(SMILE, SMILE, "Smile and wave: youre on a photo!"));
-        COMMAND_MAP.put(SMILE_NOW, new PictureCommand(SMILE_NOW, SMILE_NOW, "Facetracking and photo when located"));
+        COMMAND_MAP.put(SMILE, new PictureCommand(SMILE, SMILE, "Facetracking and photo when located"));
+        COMMAND_MAP.put(SMILE_NOW, new PictureCommand(SMILE_NOW, SMILE_NOW, "Smile and wave: youre on a photo!"));
         COMMAND_MAP.put(STOP_SMILE, new PictureCommand(STOP_SMILE, STOP_SMILE, "Stops face tracking if started"));
         COMMAND_MAP.put(ACTOR, new VideoCommand(ACTOR, ACTOR, "Camera rolling... ACTION!"));
         COMMAND_MAP.put(WHERE, new DeviceFinderCommand(WHERE, WHERE, "Instant GPS location"));
         COMMAND_MAP.put(TRACK_ME_START, new DeviceFinderCommand(TRACK_ME_START,TRACK_ME_START,"Continuous GPS tracking"));
         COMMAND_MAP.put(TRACK_ME_STOP, new DeviceFinderCommand(TRACK_ME_STOP,TRACK_ME_STOP,"Stops continuous GPS tracking"));
-        COMMAND_MAP.put(LOCKDOWN, new LockdownCommand(LOCKDOWN,LOCKDOWN,"Lockdown baby, bye bye"));
-        COMMAND_MAP.put(IM_BACK, new ImBackCommand(IM_BACK,IM_BACK,"Le boss is back ;)"));
+        COMMAND_MAP.put(LOCKDOWN, new TheftModeCommand(LOCKDOWN,LOCKDOWN,"Lockdown baby, bye bye"));
+        COMMAND_MAP.put(IM_BACK, new TheftModeCommand(IM_BACK,IM_BACK,"Le boss is back ;)"));
         COMMAND_MAP.put(SCREEN_LOCK, new ScreenLockCommand(SCREEN_LOCK,SCREEN_LOCK,"Locks screen with predifined pin"));
         COMMAND_MAP.put(TALK, new TalkCommand(TALK,TALK,"Talk to me please, let me hear your voice"));
         COMMAND_MAP.put(TALK_STOP, new TalkCommand(TALK_STOP,TALK_STOP,"Stop talking, its anoying"));
@@ -65,5 +66,5 @@ public class AntiTheftCommandUtil {
     public void executeBatchCommands(){
         
     }
-
+    
 }

@@ -8,6 +8,7 @@ import com.android.antitheft.util.PrefUtils;
 import com.parse.ParseException;
 import com.parse.SaveCallback;
 import de.greenrobot.event.EventBus;
+import com.google.gson.Gson;
 
 public class ParseSaveCallback implements SaveCallback {
     
@@ -21,14 +22,17 @@ public class ParseSaveCallback implements SaveCallback {
 
     @Override
     public void done(ParseException e) {
+        StatusUpdateEvent event = new StatusUpdateEvent(-1, mAction);
+        Gson gson = new Gson();
         if (e == null) {
-            long time=System.currentTimeMillis();
-            PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_TIME,
-                    time+":"+mAction);
-            mBus.post(new StatusUpdateEvent(time, mAction));
+            event.setTime(System.currentTimeMillis());
+            String eventJson = gson.toJson(event);
+            PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_EVENT,eventJson);
+            mBus.post(event);
         } else {
-            PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_TIME, -1+":"+mAction);
-            mBus.post(new StatusUpdateEvent(-1, mAction));
+            String eventJson = gson.toJson(event);
+            PrefUtils.getInstance().setStringPreference(PrefUtils.PARSE_LAST_UPDATE_EVENT, eventJson);
+            mBus.post(event);
         }
     }
 

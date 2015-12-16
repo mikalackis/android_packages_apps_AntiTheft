@@ -30,6 +30,7 @@ import android.util.Log;
 
 import com.android.antitheft.commands.AntiTheftCommandUtil;
 import com.android.antitheft.listeners.AntiTheftPhoneStateListener;
+import com.android.antitheft.parse.ParseHelper;
 import com.android.antitheft.receivers.AntiTheftBootReceiver;
 import com.android.antitheft.receivers.AntiTheftSMSReceiver;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
@@ -54,9 +55,9 @@ public class AntiTheftApplication extends Application {
 
         mInstance = this;
         PrefUtils.init(this);
+        AntiTheftCommandUtil.initCommands();
         ParseHelper.parseInit(this);
         DeviceInfo.getInstance().registerServiceStateListener();
-        AntiTheftCommandUtil.initCommands();
     }
     
     @Override

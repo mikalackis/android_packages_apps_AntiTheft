@@ -5,7 +5,9 @@ import android.content.Intent;
 import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
-import com.android.antitheft.ParseHelper;
+import com.android.antitheft.listeners.ParseSaveCallback;
+import com.android.antitheft.parse.ActivityParseObject;
+import com.android.antitheft.parse.ParseHelper;
 import com.android.antitheft.services.DeviceFinderService;
 
 public class DeviceFinderCommand extends AntiTheftCommand{
@@ -18,24 +20,25 @@ public class DeviceFinderCommand extends AntiTheftCommand{
 
     @Override
     public void executeCommand(final String action) {
-        if(action.equals(AntiTheftCommandUtil.WHERE)){
-            DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
-                    AntiTheftApplication.getInstance(), Config.ANTITHEFT_STATE.NORMAL.getState());
-            ParseHelper.initializeActivityParseObject(action,
-                    DeviceInfo.getInstance().getIMEI()).saveEventually();
-        }
-        else if(action.equals(AntiTheftCommandUtil.TRACK_ME_START)){
-            DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
-                    AntiTheftApplication.getInstance(), Config.ANTITHEFT_STATE.LOCKDOWN.getState());
-            ParseHelper.initializeActivityParseObject(action,
-                    DeviceInfo.getInstance().getIMEI()).saveEventually();
-        }
-        else if(action.equals(AntiTheftCommandUtil.TRACK_ME_STOP)){
+        ActivityParseObject activityObject = new ActivityParseObject();
+        activityObject.setAction(action);
+        activityObject.setImei(DeviceInfo.getInstance().getIMEI());
+        activityObject.saveEventually(new ParseSaveCallback(action));
+        int state = -1;
+        if(action.equals(AntiTheftCommandUtil.TRACK_ME_STOP)){
             AntiTheftApplication.getInstance().stopService(
                     new Intent(AntiTheftApplication.getInstance(), DeviceFinderService.class));
-            ParseHelper.initializeActivityParseObject(action,
-                    DeviceInfo.getInstance().getIMEI()).saveEventually();
+            activityObject.saveEventually(new ParseSaveCallback(action));
         }
+        else if(action.equals(AntiTheftCommandUtil.WHERE)){
+            state = Config.ANTITHEFT_STATE.NORMAL.getState();
+        }
+        else if(action.equals(AntiTheftCommandUtil.TRACK_ME_START) || action.equals(AntiTheftCommandUtil.LOCKDOWN)){
+            state = Config.ANTITHEFT_STATE.LOCKDOWN.getState();
+            activityObject.saveEventually(new ParseSaveCallback(action));
+        }
+        DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
+                AntiTheftApplication.getInstance(), state);
     }
 
 }

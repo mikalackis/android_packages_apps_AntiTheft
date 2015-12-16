@@ -24,7 +24,7 @@ public class PrefUtils {
     
     public static final String PARSE_CONFIG_CHANGED = "parse_config_changed";
     
-    public static final String PARSE_LAST_UPDATE_TIME = "parse_last_update_time";
+    public static final String PARSE_LAST_UPDATE_EVENT = "parse_last_update_event";
 
     private static Context mContext;
 

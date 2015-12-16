@@ -31,6 +31,6 @@
     <dimen name="list_item_height">72dp</dimen>
     
     <!-- text size -->
-    <dimen name="status_text_size">14sp</dimen>
+    <dimen name="status_text_size">18sp</dimen>
 
 </resources>

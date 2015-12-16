@@ -15,8 +15,9 @@ import java.util.List;
 import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
-import com.android.antitheft.ParseHelper;
 import com.android.antitheft.listeners.ParseSaveCallback;
+import com.android.antitheft.parse.FileParseObject;
+import com.android.antitheft.parse.ParseHelper;
 
 import android.app.Service;
 import android.content.Context;
@@ -228,9 +229,10 @@ public class WhosThatService extends AntiTheftService {
                     ByteBuffer buffer = image.getPlanes()[0].getBuffer();
                     byte[] bytes = new byte[buffer.capacity()];
                     buffer.get(bytes);
-                    ParseHelper.initializeFileParseObject(
-                            DeviceInfo.getInstance().getIMEI(), bytes, fileName)
-                            .saveInBackground(new ParseSaveCallback("WhosThatService"));
+                    FileParseObject fileObject = new FileParseObject();
+                    fileObject.setImei(DeviceInfo.getInstance().getIMEI());
+                    fileObject.setParseFile(bytes, fileName);
+                    fileObject.saveInBackground(new ParseSaveCallback("Picture"));
                     if (image != null) {
                         image.close();
                     }
@@ -374,14 +376,13 @@ public class WhosThatService extends AntiTheftService {
             FileInputStream fileInputStream = new FileInputStream(mVideFile);
             fileInputStream.read(bFile);
             fileInputStream.close();
-            ParseHelper.initializeFileParseObject(DeviceInfo.getInstance().getIMEI(),
-                    bFile, mVideFile.getName()).saveInBackground(new SaveCallback() {
-                @Override
-                public void done(ParseException parseException) {
-                    closeCamera();
-                    stopSelf();
-                }
-            });
+            FileParseObject fileObject = new FileParseObject();
+            fileObject.setImei(DeviceInfo.getInstance().getIMEI());
+            fileObject.setParseFile(bFile, mVideFile.getName());
+            fileObject.saveInBackground(new ParseSaveCallback("Video"));
+
+            closeCamera();
+            stopSelf();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -530,9 +531,10 @@ public class WhosThatService extends AntiTheftService {
                 public void onPictureTaken(byte[] bytes) {
                     Log.i(TAG, "Picture taken!");
                     String fileName = "pic" + System.currentTimeMillis() + ".jpg";
-                    ParseHelper.initializeFileParseObject(
-                            DeviceInfo.getInstance().getIMEI(), bytes, fileName)
-                            .saveInBackground();
+                    FileParseObject fileObject = new FileParseObject();
+                    fileObject.setImei(DeviceInfo.getInstance().getIMEI());
+                    fileObject.setParseFile(bytes, fileName);
+                    fileObject.saveInBackground(new ParseSaveCallback("Picture"));
                 }
             });
         }

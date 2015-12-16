@@ -18,8 +18,9 @@ package com.android.antitheft.services;
 
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
-import com.android.antitheft.ParseHelper;
 import com.android.antitheft.listeners.ParseSaveCallback;
+import com.android.antitheft.parse.LocationParseObject;
+import com.android.antitheft.parse.ParseHelper;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -98,8 +99,6 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
                 mConstantReporting = true;
             }
 
-            // mLocationClient = new LocationClient(context, this, this);
-            // mLocationClient.connect();
             buildGoogleApiClient();
         }
 
@@ -158,12 +157,13 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
         mLastLocationUpdate = location;
         if (!fromLastLocation)
             mUpdateCount++;
-        ParseHelper.initializeLocationParseObject(DeviceInfo.getInstance().getIMEI(), location.getLatitude(),
-                location.getLongitude()).saveInBackground(new ParseSaveCallback("DeviceFinder"));
+        LocationParseObject locationObject = new LocationParseObject();
+        locationObject.setImei(DeviceInfo.getInstance().getIMEI());
+        locationObject.setLatitudeLongitude(location.getLatitude(), location.getLongitude());
+        locationObject.saveInBackground(new ParseSaveCallback("Location"));
         if (mLastLocationUpdate != null) {
             maybeStopLocationUpdates(mLastLocationUpdate.getAccuracy());
         }
-        // call parse here
     }
 
     @Override
@@ -187,10 +187,14 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
     private void maybeStopLocationUpdates(float accuracy) {
         // if mUpdateCount, then this is a case we have the last known location. Don't stop in that
         // case.
-        if (!mConstantReporting
-                && (mUpdateCount != 0)
-                && (accuracy <= LOCATION_ACCURACY_THRESHOLD || mUpdateCount == MAX_LOCATION_UPDATES)) {
-            stopUpdates();
+        if (!mConstantReporting) {
+            if ((mUpdateCount != 0)
+                    && (accuracy <= LOCATION_ACCURACY_THRESHOLD || mUpdateCount == MAX_LOCATION_UPDATES)) {
+                stopUpdates();
+            }
+        }
+        else {
+            Log.i(TAG, "Constant reporting in progress");
         }
     }
 

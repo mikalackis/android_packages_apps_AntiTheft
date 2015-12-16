@@ -13,31 +13,33 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.antitheft.DeviceInfo;
-import com.android.antitheft.ParseHelper;
 import com.android.antitheft.R;
 import com.android.antitheft.eventbus.StatusUpdateEvent;
 import com.android.antitheft.listeners.ParseSaveCallback;
+import com.android.antitheft.parse.ActivityParseObject;
+import com.android.antitheft.parse.ParseHelper;
 import com.android.antitheft.util.PrefUtils;
 import com.parse.SaveCallback;
 import com.parse.ParseObject;
+import com.google.gson.Gson;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class StatusFragment extends Fragment {
-    
+
     private SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
-    
+
     private TextView tvLastUpdate;
     private TextView tvLastCommand;
-    
+
     public static StatusFragment createFragment() {
         // final Bundle args = new Bundle();
         // args.putSerializable(HOTELS, hotels);
         // f.setArguments(args);
         return new StatusFragment();
     }
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -45,31 +47,34 @@ public class StatusFragment extends Fragment {
                 container, false);
         tvLastUpdate = (TextView) view.findViewById(R.id.txt_last_update);
         tvLastCommand = (TextView) view.findViewById(R.id.txt_last_command);
-        
-        String lastUpdate = PrefUtils.getInstance().getStringPreference(
-                PrefUtils.PARSE_LAST_UPDATE_TIME, "-1:unknown");
-        String[] updateSplit = lastUpdate.split(":");
-        
-        setupStatusText(updateSplit[0],updateSplit[1]);
 
+        Gson gson = new Gson();
+        String eventJson = PrefUtils.getInstance().getStringPreference(
+                PrefUtils.PARSE_LAST_UPDATE_EVENT, null);
+        if (eventJson != null) {
+            StatusUpdateEvent event = gson.fromJson(eventJson, StatusUpdateEvent.class);
+            setupStatusText(event);
+        }
+        
         Button btnReportStatus = (Button) view.findViewById(R.id.btn_report_status);
         btnReportStatus.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                ParseHelper.initializeActivityParseObject("AntiTheft online",
-                        DeviceInfo.getInstance().getIMEI())
-                        .saveInBackground(new ParseSaveCallback("AntiTheft online"));
+                ActivityParseObject activityObject = new ActivityParseObject();
+                activityObject.setAction("AntiTheft online");
+                activityObject.setImei(DeviceInfo.getInstance().getIMEI());
+                activityObject.saveEventually(new ParseSaveCallback("AntiTheft online"));
             }
         });
         return view;
     }
-    
-    private void setupStatusText(String time,String action){
-        if (!time.equals("-1")) {
-            Date resultdate = new Date(Long.parseLong(time));
+
+    private void setupStatusText(StatusUpdateEvent event) {
+        if (event.getTime() != -1) {
+            Date resultdate = new Date(event.getTime());
             tvLastUpdate.setText(sdf.format(resultdate));
-            tvLastCommand.setText(action);
+            tvLastCommand.setText(event.getAction());
         }
         else {
             tvLastUpdate.setText("UNKNOWN");
@@ -78,9 +83,9 @@ public class StatusFragment extends Fragment {
             tvLastCommand.setTextColor(getResources().getColor(android.R.color.holo_red_light));
         }
     }
-    
-    public void updateStatusData(final StatusUpdateEvent event){
-        setupStatusText(event.getTime()+"", event.getAction());
+
+    public void updateStatusData(final StatusUpdateEvent event) {
+        setupStatusText(event);
     }
 
 }

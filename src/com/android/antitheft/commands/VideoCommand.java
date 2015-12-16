@@ -5,7 +5,9 @@ import android.content.Intent;
 import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
 import com.android.antitheft.DeviceInfo;
-import com.android.antitheft.ParseHelper;
+import com.android.antitheft.listeners.ParseSaveCallback;
+import com.android.antitheft.parse.ActivityParseObject;
+import com.android.antitheft.parse.ParseHelper;
 import com.android.antitheft.services.DeviceFinderService;
 import com.android.antitheft.services.WhosThatService;
 
@@ -22,8 +24,10 @@ public class VideoCommand extends AntiTheftCommand{
         WhosThatService.startAntiTheftService(WhosThatService.class.getName(),
                 AntiTheftApplication.getInstance(),
                 WhosThatService.CAMERA_VIDEO);
-        ParseHelper.initializeActivityParseObject(action,
-                DeviceInfo.getInstance().getIMEI()).saveEventually();
+        ActivityParseObject activityObject = new ActivityParseObject();
+        activityObject.setAction(action);
+        activityObject.setImei(DeviceInfo.getInstance().getIMEI());
+        activityObject.saveEventually(new ParseSaveCallback(action));
     }
 
 }

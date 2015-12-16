@@ -1,7 +1,7 @@
 
 package com.android.antitheft.receivers;
 
-import com.android.antitheft.ParseHelper;
+import com.android.antitheft.parse.ParseHelper;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
