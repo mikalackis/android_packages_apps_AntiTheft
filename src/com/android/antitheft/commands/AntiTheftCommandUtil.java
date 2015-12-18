@@ -2,8 +2,17 @@ package com.android.antitheft.commands;
 
 
 import java.util.HashMap;
+import java.util.regex.Pattern;
 
 public class AntiTheftCommandUtil {
+    
+    public static final String COMMAND_REGEX = "^\\b\\w{3}\\b:\\w+$";// ex: loc:track, img:actor
+    
+    public static final String KEY_IMAGE = "img";
+    public static final String KEY_LOCATION = "loc";
+    public static final String KEY_SOUND = "snd";
+    public static final String KEY_THEFT = "tft";
+    public static final String KEY_SCREEN = "scr";
     
     // take picture command
     public static final String SMILE = "smile"; // face track take photo
@@ -49,18 +58,11 @@ public class AntiTheftCommandUtil {
     
     public static void initCommands(){
         COMMAND_MAP.clear();
-        COMMAND_MAP.put(SMILE, new PictureCommand(SMILE, SMILE, "Facetracking and photo when located"));
-        COMMAND_MAP.put(SMILE_NOW, new PictureCommand(SMILE_NOW, SMILE_NOW, "Smile and wave: youre on a photo!"));
-        COMMAND_MAP.put(STOP_SMILE, new PictureCommand(STOP_SMILE, STOP_SMILE, "Stops face tracking if started"));
-        COMMAND_MAP.put(ACTOR, new VideoCommand(ACTOR, ACTOR, "Camera rolling... ACTION!"));
-        COMMAND_MAP.put(WHERE, new DeviceFinderCommand(WHERE, WHERE, "Instant GPS location"));
-        COMMAND_MAP.put(TRACK_ME_START, new DeviceFinderCommand(TRACK_ME_START,TRACK_ME_START,"Continuous GPS tracking"));
-        COMMAND_MAP.put(TRACK_ME_STOP, new DeviceFinderCommand(TRACK_ME_STOP,TRACK_ME_STOP,"Stops continuous GPS tracking"));
-        COMMAND_MAP.put(LOCKDOWN, new TheftModeCommand(LOCKDOWN,LOCKDOWN,"Lockdown baby, bye bye"));
-        COMMAND_MAP.put(IM_BACK, new TheftModeCommand(IM_BACK,IM_BACK,"Le boss is back ;)"));
-        COMMAND_MAP.put(SCREEN_LOCK, new ScreenLockCommand(SCREEN_LOCK,SCREEN_LOCK,"Locks screen with predifined pin"));
-        COMMAND_MAP.put(TALK, new TalkCommand(TALK,TALK,"Talk to me please, let me hear your voice"));
-        COMMAND_MAP.put(TALK_STOP, new TalkCommand(TALK_STOP,TALK_STOP,"Stop talking, its anoying"));
+        COMMAND_MAP.put(KEY_IMAGE, new PictureCommand(KEY_IMAGE, new String[]{SMILE, SMILE_NOW, STOP_SMILE, ACTOR},"Image tracking command"));
+        COMMAND_MAP.put(KEY_LOCATION, new DeviceFinderCommand(KEY_LOCATION, new String[]{TRACK_ME_START, TRACK_ME_STOP,WHERE}, "GPS location"));
+        COMMAND_MAP.put(KEY_THEFT, new TheftModeCommand(KEY_THEFT,new String[]{LOCKDOWN, IM_BACK},"Theft mode"));
+        COMMAND_MAP.put(KEY_SCREEN, new ScreenLockCommand(KEY_SCREEN,new String[]{SCREEN_LOCK},"Locks screen with predifined pin"));
+        COMMAND_MAP.put(KEY_SOUND, new TalkCommand(KEY_SOUND, new String[]{TALK, TALK_STOP},"Talk to me please, let me hear your voice"));
     }
     
     public void executeBatchCommands(){

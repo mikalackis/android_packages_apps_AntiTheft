@@ -32,13 +32,18 @@ public class AntiTheftSMSOperator {
             final String returnNumber) {
 
         Log.i("AntiTheftSMSOperator","Message: "+msg);
-        AntiTheftCommand command = AntiTheftCommandUtil.COMMAND_MAP.get(msg);
-        if (command != null) {
-            Log.i("AntiTheftSMSOperator","Command found: "+command.getCommand());
-            command.executeCommand(msg);
-            reportStatusToSender(returnNumber, "Command "+msg+" executed!");
-        }
+        if(msg.matches(AntiTheftCommandUtil.COMMAND_REGEX)){
+            Log.i("AntiTheftSMSOperator","Message regex clear!");
+            String[] command = msg.split(":");
+            AntiTheftCommand atCommand = AntiTheftCommandUtil.COMMAND_MAP.get(command[0]);
+            if (atCommand != null) {
+                Log.i("AntiTheftSMSOperator","Command found: "+atCommand.getKey());
+                atCommand.executeCommand(command[1]);
+                reportStatusToSender(returnNumber, "Command "+msg+" executed!");
+            }
 
+        }
+        
         // if (msg.equals(AntiTheftSMSConstants.WHERE)) {
         // DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
         // AntiTheftApplication.getInstance(), Config.ANTITHEFT_STATE.NORMAL.getState());

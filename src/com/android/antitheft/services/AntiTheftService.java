@@ -46,7 +46,7 @@ public abstract class AntiTheftService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.i(TAG, "onDestroy");
-        if (sWakeLock != null) {
+        if (sWakeLock != null && sWakeLock.isHeld()) {
             Log.i(TAG, "sWakeLock existing");
             Toast.makeText(this, "Wake lock released", Toast.LENGTH_LONG).show();
             sWakeLock.release();

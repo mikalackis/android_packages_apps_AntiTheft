@@ -17,14 +17,13 @@ import com.android.antitheft.util.PrefUtils;
 
 public class TheftModeCommand extends AntiTheftCommand {
 
-    public TheftModeCommand(final String key, final String command, final String description) {
-        this.key = key;
-        this.command = command;
-        this.description = description;
+    public TheftModeCommand(String key, String[] commands, String description) {
+        super(key, commands, description);
     }
 
     @Override
     public void executeCommand(final String action) {
+        reportActionToParse(action);
         if (action.equals(AntiTheftCommandUtil.LOCKDOWN)) {
             PrefUtils.getInstance().setIntegerPreference(PrefUtils.ANTITHEFT_MODE,
                     Config.ANTITHEFT_STATE.LOCKDOWN.getState());
@@ -52,13 +51,10 @@ public class TheftModeCommand extends AntiTheftCommand {
             AntiTheftApplication.getInstance().stopService(
                     new Intent(AntiTheftApplication.getInstance(), WhosThatSoundService.class));
             // stop location updates
-            AntiTheftApplication.getInstance().stopService(
-                    new Intent(AntiTheftApplication.getInstance(), DeviceFinderService.class));
+            AntiTheftCommandUtil.COMMAND_MAP.get(AntiTheftCommandUtil.TRACK_ME_STOP).executeCommand(AntiTheftCommandUtil.TRACK_ME_STOP);
+//            AntiTheftApplication.getInstance().stopService(
+//                    new Intent(AntiTheftApplication.getInstance(), DeviceFinderService.class));
 
         }
-        ActivityParseObject activityObject = new ActivityParseObject();
-        activityObject.setAction(action);
-        activityObject.setImei(DeviceInfo.getInstance().getIMEI());
-        activityObject.saveEventually(new ParseSaveCallback(action));
     }
 }

@@ -83,7 +83,7 @@ public class ControlAdapter extends RecyclerView.Adapter<ControlAdapter.ViewHold
  
         // Get element from your dataset at this position and replace the contents of the view
         // with that element
-        viewHolder.getTextView().setText(mDataSet[position].getCommand()+" : "+mDataSet[position].getDescription());
+        viewHolder.getTextView().setText(mDataSet[position].getCommands().toString()+" : "+mDataSet[position].getDescription());
     }
  
     // Return the size of your dataset (invoked by the layout manager)

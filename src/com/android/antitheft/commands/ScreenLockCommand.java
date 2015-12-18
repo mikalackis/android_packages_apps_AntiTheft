@@ -15,20 +15,15 @@ import com.android.antitheft.services.WhosThatService;
 
 public class ScreenLockCommand extends AntiTheftCommand {
 
-    public ScreenLockCommand(final String key, final String command, final String description) {
-        this.key = key;
-        this.command = command;
-        this.description = description;
+    public ScreenLockCommand(String key, String[] commands, String description) {
+        super(key, commands, description);
     }
 
     @Override
     public void executeCommand(final String action) {
+        reportActionToParse(action);
         LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS,
                 AntiTheftApplication.getInstance());
-        ActivityParseObject activityObject = new ActivityParseObject();
-        activityObject.setAction(action);
-        activityObject.setImei(DeviceInfo.getInstance().getIMEI());
-        activityObject.saveEventually(new ParseSaveCallback(action));
     }
 
 }

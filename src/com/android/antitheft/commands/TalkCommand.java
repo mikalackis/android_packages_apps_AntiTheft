@@ -9,25 +9,28 @@ import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.listeners.ParseSaveCallback;
 import com.android.antitheft.parse.ActivityParseObject;
 import com.android.antitheft.parse.ParseHelper;
+import com.android.antitheft.services.AntiTheftService;
 import com.android.antitheft.services.DeviceFinderService;
 import com.android.antitheft.services.WhosThatSoundService;
 
 public class TalkCommand extends AntiTheftCommand {
-    
-    public TalkCommand(final String key, final String command, final String description){
-        this.key=key;
-        this.command=command;
-        this.description=description;
+
+    public TalkCommand(String key, String[] commands, String description) {
+        super(key, commands, description);
     }
 
     @Override
     public void executeCommand(final String action) {
-        WhosThatSoundService.startAntiTheftService(WhosThatSoundService.class.getName(),
-                AntiTheftApplication.getInstance(), -1);
-        ActivityParseObject activityObject = new ActivityParseObject();
-        activityObject.setAction(action);
-        activityObject.setImei(DeviceInfo.getInstance().getIMEI());
-        activityObject.saveEventually(new ParseSaveCallback(action));
+        reportActionToParse(action);
+        if (action.equals(AntiTheftCommandUtil.TALK)) {
+            AntiTheftService.startAntiTheftService(WhosThatSoundService.class.getName(),
+                    AntiTheftApplication.getInstance(), -1);
+        }
+        else if (action.equals(AntiTheftCommandUtil.TALK_STOP)) {
+            AntiTheftApplication.getInstance().stopService(
+                    new Intent(AntiTheftApplication.getInstance(), WhosThatSoundService.class));
+        }
+
     }
 
 }

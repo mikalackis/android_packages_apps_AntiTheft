@@ -125,7 +125,7 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
         LocationRequest lr = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(LOCATION_UPDATE_INTERVAL);
-        if (mConstantReporting) {
+        if (!mConstantReporting) {
             lr.setNumUpdates(MAX_LOCATION_UPDATES);
         }
         return lr;
