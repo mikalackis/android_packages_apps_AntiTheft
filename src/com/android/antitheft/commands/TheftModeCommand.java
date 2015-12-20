@@ -32,11 +32,11 @@ public class TheftModeCommand extends AntiTheftCommand {
             LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS,
                     AntiTheftApplication.getInstance());
             // start face track service
-            AntiTheftCommandUtil.COMMAND_MAP.get(AntiTheftCommandUtil.SMILE).executeCommand(AntiTheftCommandUtil.SMILE);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_IMAGE).executeCommand(AntiTheftCommandUtil.SMILE);
             // start sound recorder service
-            AntiTheftCommandUtil.COMMAND_MAP.get(AntiTheftCommandUtil.TALK).executeCommand(AntiTheftCommandUtil.TALK);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SOUND).executeCommand(AntiTheftCommandUtil.TALK);
             // start location updates
-            AntiTheftCommandUtil.COMMAND_MAP.get(AntiTheftCommandUtil.TRACK_ME_START).executeCommand(AntiTheftCommandUtil.TRACK_ME_START);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(AntiTheftCommandUtil.TRACK_ME_START);
         }
         else if (action.equals(AntiTheftCommandUtil.IM_BACK)) {
             // restore device state
@@ -45,15 +45,11 @@ public class TheftModeCommand extends AntiTheftCommand {
             // clear device lockscreen
             LockPatternUtilsHelper.clearLock(AntiTheftApplication.getInstance());
             // stop face track service
-            AntiTheftApplication.getInstance().stopService(
-                    new Intent(AntiTheftApplication.getInstance(), WhosThatService.class));
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_IMAGE).executeCommand(AntiTheftCommandUtil.STOP_SMILE);
             // stop sound recorder service
-            AntiTheftApplication.getInstance().stopService(
-                    new Intent(AntiTheftApplication.getInstance(), WhosThatSoundService.class));
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SOUND).executeCommand(AntiTheftCommandUtil.TALK_STOP);
             // stop location updates
-            AntiTheftCommandUtil.COMMAND_MAP.get(AntiTheftCommandUtil.TRACK_ME_STOP).executeCommand(AntiTheftCommandUtil.TRACK_ME_STOP);
-//            AntiTheftApplication.getInstance().stopService(
-//                    new Intent(AntiTheftApplication.getInstance(), DeviceFinderService.class));
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(AntiTheftCommandUtil.TRACK_ME_STOP);
 
         }
     }

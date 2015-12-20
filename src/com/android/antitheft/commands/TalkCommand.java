@@ -23,14 +23,12 @@ public class TalkCommand extends AntiTheftCommand {
     public void executeCommand(final String action) {
         reportActionToParse(action);
         if (action.equals(AntiTheftCommandUtil.TALK)) {
-            AntiTheftService.startAntiTheftService(WhosThatSoundService.class.getName(),
+            startAntiTheftService(WhosThatSoundService.class.getName(),
                     AntiTheftApplication.getInstance(), -1);
         }
         else if (action.equals(AntiTheftCommandUtil.TALK_STOP)) {
-            AntiTheftApplication.getInstance().stopService(
-                    new Intent(AntiTheftApplication.getInstance(), WhosThatSoundService.class));
+            stopAntiTheftService(WhosThatSoundService.class, AntiTheftApplication.getInstance());
         }
-
     }
 
 }

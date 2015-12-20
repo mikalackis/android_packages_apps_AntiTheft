@@ -4,44 +4,43 @@ package com.android.antitheft.services;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.android.antitheft.commands.AntiTheftCommandUtil;
+import com.android.antitheft.AntiTheftApplication;
 
 
 public abstract class AntiTheftService extends Service {
 
     public static final String SERVICE_PARAM = "service_param";
 
-    protected static String TAG;
+    protected final String TAG = "AntiTheftService";
+    
+    protected String mServiceName;
 
     private static PowerManager.WakeLock sWakeLock;
 
-    public static void startAntiTheftService(final String serviceName, final Context context,
-            final int state) {
-        Class<?> serviceClass;
-        try {
-            serviceClass = Class.forName(serviceName);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+    
+    @Override
+    public void onCreate() {
+        super.onCreate();
         if (sWakeLock == null) {
             PowerManager pm = (PowerManager)
-                    context.getSystemService(Context.POWER_SERVICE);
-            sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, serviceName);
+                    AntiTheftApplication.getInstance().getSystemService(Context.POWER_SERVICE);
+            sWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
         }
         if (!sWakeLock.isHeld()) {
             sWakeLock.acquire();
         }
-        TAG = serviceName;
-        
-        Intent intent = new Intent(context, serviceClass);
-        intent.putExtra(SERVICE_PARAM, state);
-        context.startService(intent);
     }
-    
+
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -52,5 +51,5 @@ public abstract class AntiTheftService extends Service {
             sWakeLock.release();
         }
     }
-
+    
 }

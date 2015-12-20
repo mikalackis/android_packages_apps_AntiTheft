@@ -35,7 +35,7 @@ public class ControlFragment extends Fragment {
     }
 
     public ControlFragment() {
-        mDataset = AntiTheftCommandUtil.COMMAND_MAP.values().toArray(new AntiTheftCommand[AntiTheftCommandUtil.COMMAND_MAP.size()]);
+        mDataset = AntiTheftCommandUtil.getAllCommands().values().toArray(new AntiTheftCommand[AntiTheftCommandUtil.getAllCommands().size()]);
     }
 
     @Override

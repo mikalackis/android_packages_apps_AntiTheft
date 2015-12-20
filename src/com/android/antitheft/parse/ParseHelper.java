@@ -44,11 +44,10 @@ public class ParseHelper {
         int mCurrentState = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
                 Config.ANTITHEFT_STATE.NORMAL.getState());
         if (mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
-            AntiTheftCommandUtil.COMMAND_MAP.get(AntiTheftCommandUtil.LOCKDOWN).executeCommand(AntiTheftCommandUtil.LOCKDOWN);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_THEFT).executeCommand(AntiTheftCommandUtil.LOCKDOWN);
         }
         else{
-            DeviceFinderService.startAntiTheftService(DeviceFinderService.class.getName(),
-                    AntiTheftApplication.getInstance(), mCurrentState);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(AntiTheftCommandUtil.WHERE);
         }
     }
 

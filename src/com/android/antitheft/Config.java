@@ -16,7 +16,7 @@ public class Config {
 
     public static final String STORAGE_PATH_LOCAL_PHONE = Environment.getExternalStorageDirectory()
             .toString() + "/" + ANTITHEFT_FOLDER;
-
+    
     public static enum ANTITHEFT_STATE {
         LOCKDOWN(1),
         NORMAL(0);
