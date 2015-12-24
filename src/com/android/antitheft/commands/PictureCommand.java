@@ -1,7 +1,6 @@
 
 package com.android.antitheft.commands;
 
-import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.services.WhosThatService;
 
 public class PictureCommand extends AntiTheftCommand {
@@ -14,18 +13,22 @@ public class PictureCommand extends AntiTheftCommand {
     public void executeCommand(final String action) {
         reportActionToParse(action);
         if (action.equals(AntiTheftCommandUtil.SMILE)) {
-            startAntiTheftService(WhosThatService.class.getName(),
-                    AntiTheftApplication.getInstance(),
-                    WhosThatService.CAMERA_FACETRACK_IMAGE);
+            startAntiTheftService(WhosThatService.CAMERA_FACETRACK_IMAGE);
         }
         else if (action.equals(AntiTheftCommandUtil.STOP_SMILE)) {
-            stopAntiTheftService(WhosThatService.class, AntiTheftApplication.getInstance());
+            stopAntiTheftService();
         }
         else if (action.equals(AntiTheftCommandUtil.SMILE_NOW)) {
-            startAntiTheftService(WhosThatService.class.getName(),
-                    AntiTheftApplication.getInstance(),
-                    WhosThatService.CAMERA_IMAGE);
+            startAntiTheftService(WhosThatService.CAMERA_IMAGE);
         }
+        else if (action.equals(AntiTheftCommandUtil.ACTOR)) {
+            startAntiTheftService(WhosThatService.CAMERA_VIDEO);
+        }
+    }
+
+    @Override
+    public Class<?> getServiceClass() {
+        return WhosThatService.class;
     }
 
 }

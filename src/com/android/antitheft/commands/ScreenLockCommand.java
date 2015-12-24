@@ -18,4 +18,9 @@ public class ScreenLockCommand extends AntiTheftCommand {
                 AntiTheftApplication.getInstance());
     }
 
+    @Override
+    public Class<?> getServiceClass() {
+        return null;
+    }
+
 }

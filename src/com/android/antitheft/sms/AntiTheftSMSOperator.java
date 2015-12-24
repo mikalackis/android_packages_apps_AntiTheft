@@ -3,6 +3,10 @@ package com.android.antitheft.sms;
 
 import com.android.antitheft.commands.AntiTheftCommand;
 import com.android.antitheft.commands.AntiTheftCommandUtil;
+import com.android.internal.util.ArrayUtils;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 
 import android.content.Context;
 import android.telecom.Log;
@@ -23,7 +27,10 @@ public class AntiTheftSMSOperator {
             AntiTheftCommand atCommand = AntiTheftCommandUtil.getCommandByKey(command[0]);
             if (atCommand != null) {
                 Log.i("AntiTheftSMSOperator", "Command found: " + atCommand.getKey());
-                atCommand.executeCommand(command[1]);
+                // check if command is supported
+                if (Arrays.asList(atCommand.getCommands()).contains(command[1])) {
+                    atCommand.executeCommand(command[1]);
+                }
                 reportStatusToSender(returnNumber, "Command " + msg + " executed!");
             }
 

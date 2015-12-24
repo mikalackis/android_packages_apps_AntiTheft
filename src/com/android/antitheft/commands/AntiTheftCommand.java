@@ -60,26 +60,20 @@ public abstract class AntiTheftCommand {
         activityObject.saveEventually(new ParseSaveCallback(action));
     }
 
-    protected void startAntiTheftService(final String serviceName, final Context context,
-            final int state) {
-        Class<?> serviceClass;
-        try {
-            serviceClass = Class.forName(serviceName);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        Intent intent = new Intent(context, serviceClass);
+    protected void startAntiTheftService(final int state) {
+        Intent intent = new Intent(AntiTheftApplication.getInstance(), getServiceClass());
         intent.putExtra(AntiTheftService.SERVICE_PARAM, state);
-        context.startService(intent);
+        AntiTheftApplication.getInstance().startService(intent);
     }
 
-    protected void stopAntiTheftService(final Class<?> serviceClass, final Context context) {
+    protected void stopAntiTheftService() {
         AntiTheftApplication.getInstance().stopService(
-                new Intent(context, serviceClass));
+                new Intent(AntiTheftApplication.getInstance(), getServiceClass()));
     }
 
     public abstract void executeCommand(final String action);
+
+    public abstract Class<?> getServiceClass();
 
     // public abstract void stopSelf();
 

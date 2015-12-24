@@ -143,6 +143,8 @@
         android:protectionLevel="signature" />
 
     <uses-permission android:name="com.android.antitheft.permission.C2D_MESSAGE" />
+    
+    <protected-broadcast android:name="android.intent.action.antitheft.LOCATION" />
 
     <!-- android:process="system" -->
     <application

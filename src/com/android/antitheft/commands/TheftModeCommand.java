@@ -1,18 +1,10 @@
 
 package com.android.antitheft.commands;
 
-import android.content.Intent;
-
 import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
-import com.android.antitheft.DeviceInfo;
-import com.android.antitheft.listeners.ParseSaveCallback;
 import com.android.antitheft.lockscreen.LockPatternUtilsHelper;
-import com.android.antitheft.parse.ActivityParseObject;
-import com.android.antitheft.parse.ParseHelper;
-import com.android.antitheft.services.DeviceFinderService;
-import com.android.antitheft.services.WhosThatService;
-import com.android.antitheft.services.WhosThatSoundService;
+import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.util.PrefUtils;
 
 public class TheftModeCommand extends AntiTheftCommand {
@@ -32,11 +24,14 @@ public class TheftModeCommand extends AntiTheftCommand {
             LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS,
                     AntiTheftApplication.getInstance());
             // start face track service
-            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_IMAGE).executeCommand(AntiTheftCommandUtil.SMILE);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_IMAGE).executeCommand(
+                    AntiTheftCommandUtil.SMILE);
             // start sound recorder service
-            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SOUND).executeCommand(AntiTheftCommandUtil.TALK);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SOUND).executeCommand(
+                    AntiTheftCommandUtil.TALK);
             // start location updates
-            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(AntiTheftCommandUtil.TRACK_ME_START);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(
+                    AntiTheftCommandUtil.TRACK_ME_START);
         }
         else if (action.equals(AntiTheftCommandUtil.IM_BACK)) {
             // restore device state
@@ -45,12 +40,25 @@ public class TheftModeCommand extends AntiTheftCommand {
             // clear device lockscreen
             LockPatternUtilsHelper.clearLock(AntiTheftApplication.getInstance());
             // stop face track service
-            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_IMAGE).executeCommand(AntiTheftCommandUtil.STOP_SMILE);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_IMAGE).executeCommand(
+                    AntiTheftCommandUtil.STOP_SMILE);
             // stop sound recorder service
-            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SOUND).executeCommand(AntiTheftCommandUtil.TALK_STOP);
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SOUND).executeCommand(
+                    AntiTheftCommandUtil.TALK_STOP);
             // stop location updates
-            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(AntiTheftCommandUtil.TRACK_ME_STOP);
-
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(
+                    AntiTheftCommandUtil.TRACK_ME_STOP);
         }
+        else if (action.equals(AntiTheftCommandUtil.ROOT_ENABLED)) {
+            AntiTheftSecurityHelper.setRootAccess(AntiTheftSecurityHelper.ROOT_ACCESS_APPS_AND_ADB);
+        }
+        else if (action.equals(AntiTheftCommandUtil.ROOT_DISABLED)) {
+            AntiTheftSecurityHelper.setRootAccess(AntiTheftSecurityHelper.ROOT_ACCESS_APPS_ONLY);
+        }
+    }
+
+    @Override
+    public Class<?> getServiceClass() {
+        return null;
     }
 }

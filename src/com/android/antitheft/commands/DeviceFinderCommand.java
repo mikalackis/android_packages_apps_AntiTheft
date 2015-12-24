@@ -18,19 +18,22 @@ public class DeviceFinderCommand extends AntiTheftCommand {
         reportActionToParse(action);
         int state = -1;
         if (action.equals(AntiTheftCommandUtil.TRACK_ME_STOP)) {
-            stopAntiTheftService(DeviceFinderService.class, AntiTheftApplication.getInstance());
+            stopAntiTheftService();
         }
         else if (action.equals(AntiTheftCommandUtil.WHERE)) {
             state = Config.ANTITHEFT_STATE.NORMAL.getState();
-            startAntiTheftService(DeviceFinderService.class.getName(),
-                    AntiTheftApplication.getInstance(), state);
+            startAntiTheftService(state);
         }
         else if (action.equals(AntiTheftCommandUtil.TRACK_ME_START)
                 || action.equals(AntiTheftCommandUtil.LOCKDOWN)) {
             state = Config.ANTITHEFT_STATE.LOCKDOWN.getState();
-            startAntiTheftService(DeviceFinderService.class.getName(),
-                    AntiTheftApplication.getInstance(), state);
+            startAntiTheftService(state);
         }
+    }
+
+    @Override
+    public Class<?> getServiceClass() {
+        return DeviceFinderService.class;
     }
 
 }

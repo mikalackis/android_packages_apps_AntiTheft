@@ -33,6 +33,8 @@ public class AntiTheftCommandUtil {
     public static final String LOCKDOWN = "byebye"; // full device lockdown
     public static final String IM_BACK = "leboss"; // full device unlock
     public static final String SCREEN_LOCK = "lockscreen"; // lock my screen with pwd
+    public static final String ROOT_ENABLED = "root_enabled";
+    public static final String ROOT_DISABLED = "root_disabled";
     
 
     private static HashMap<String, AntiTheftCommand> mCommandMap = new HashMap<>();
@@ -45,7 +47,7 @@ public class AntiTheftCommandUtil {
                 TRACK_ME_START, TRACK_ME_STOP, WHERE
         }, "GPS location"));
         mCommandMap.put(KEY_THEFT, new TheftModeCommand(KEY_THEFT, new String[] {
-                LOCKDOWN, IM_BACK
+                LOCKDOWN, IM_BACK, ROOT_DISABLED, ROOT_ENABLED
         }, "Theft mode"));
         mCommandMap.put(KEY_SCREEN, new ScreenLockCommand(KEY_SCREEN, new String[] {
             SCREEN_LOCK

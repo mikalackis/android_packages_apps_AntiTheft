@@ -214,8 +214,4 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
         }
     }
 
-    @Override
-    public void setServiceName(String serviceName) {
-        mServiceName = 
-    }
 }

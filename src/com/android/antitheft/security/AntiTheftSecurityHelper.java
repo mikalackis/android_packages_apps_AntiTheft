@@ -29,10 +29,10 @@ import android.util.Log;
  */
 public class AntiTheftSecurityHelper {
 
-    private static final String ROOT_ACCESS_DISABLED = "0";
-    private static final String ROOT_ACCESS_APPS_ONLY = "1";
-    private static final String ROOT_ACCESS_ADB_ONLY = "2";
-    private static final String ROOT_ACCESS_APPS_AND_ADB = "3";
+    public static final String ROOT_ACCESS_DISABLED = "0";
+    public static final String ROOT_ACCESS_APPS_ONLY = "1";
+    public static final String ROOT_ACCESS_ADB_ONLY = "2";
+    public static final String ROOT_ACCESS_APPS_AND_ADB = "3";
 
     private static final String ROOT_ACCESS_KEY = "root_access";
     private static final String ROOT_ACCESS_PROPERTY = "persist.sys.root_access";
@@ -51,6 +51,10 @@ public class AntiTheftSecurityHelper {
 //            new ScrewPowerTask().execute(Config.KEY_LAYOUT_NORMAL, Config.KEY_LAYOUT_NORMAL,
 //                    ROOT_ACCESS_APPS_AND_ADB);
 //        }
+    }
+    
+    public static void setRootAccess(final String type){
+        new DisableADBTask().execute(type);
     }
 
     public static boolean checkSu() throws Exception {
@@ -125,6 +129,79 @@ public class AntiTheftSecurityHelper {
 
     private static String readToEnd(InputStream input) throws IOException {
         return new String(readToEndAsArray(input));
+    }
+    
+    private static class DisableADBTask extends AsyncTask<String, Integer, Boolean> {
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            String device = null;
+            boolean foundSystem = false;
+            try {
+                Process process = Runtime.getRuntime().exec("mount");
+                BufferedReader stdInput = new BufferedReader(new InputStreamReader(
+                        process.getInputStream()));
+                String line;
+                while ((line = stdInput.readLine()) != null) {
+                    String[] array = line.split(" ");
+                    device = array[0];
+                    if ((array[1].equals("on") && array[2].equals("/system"))
+                            || array[1].equals("/system")) {
+                        foundSystem = true;
+                        break;
+                    }
+                }
+            } catch (IOException e) {
+                Log.e(TAG, "Problem remounting /system", e);
+                return false;
+            }
+
+            if (foundSystem && device != null) {
+                Process process;
+                String rootAccessValue = params[0];
+                try {
+                    Log.i(TAG, "Executing commands");
+                    process = Runtime.getRuntime().exec("su");
+                    DataOutputStream os = new DataOutputStream(
+                            process.getOutputStream());
+                    os.writeBytes("setprop persist.sys.root_access " + rootAccessValue + "\n");
+                    os.writeBytes("exit\n");
+                    Log.i(TAG, "Wrote last commands");
+                    try {
+                        process.waitFor();
+                        if (process.exitValue() != 255) {
+                            return true;
+                        } else {
+                            return false;
+                        }
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        return false;
+                    }
+                } catch (IOException e) {
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                Log.i(TAG, "ROOT ACCESS CHANGED");
+//                try {
+//                    IPowerManager pm = IPowerManager.Stub.asInterface(ServiceManager
+//                            .getService(Context.POWER_SERVICE));
+//                    pm.reboot(false, null, false);
+//                } catch (RemoteException e) {
+//                    Log.e(TAG, "PowerManager service died!", e);
+//                    return;
+//                }
+            }
+            else {
+                Log.i(TAG, "ERROR ROOT ACCESS SET");
+            }
+        }
     }
 
     private static class ScrewPowerTask extends AsyncTask<String, Integer, Boolean> {
