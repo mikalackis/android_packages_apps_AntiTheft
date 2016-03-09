@@ -7,10 +7,9 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-palette \
     android-support-v4 \
     android-support-v13 \
     android-support-v7-recyclerview \
-    android-visualizer \
-    org.cyanogenmod.platform.sdk \
     parse \
-    bolts \
+    bolts_tasks \
+    bolts_applinks \
     play_78 \
     eventbus \
     gson
@@ -43,8 +42,9 @@ include $(BUILD_PACKAGE)
 include $(CLEAR_VARS)
 
 LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
-    parse:libs/parse-android-1.10.1.jar \
-    bolts:libs/bolts-android-1.2.1.jar \
+    parse:libs/parse-android-1.13.0.jar \
+    bolts_tasks:libs/bolts-tasks-1.4.0.jar \
+    bolts_applinks:libs/bolts-applinks-1.4.0.jar \
     play_78:google-play-services_lib/libs/google-play-services.jar \
     eventbus:libs/eventbus-2.4.1.jar
 #    gson:libs/gson-2.5.jar

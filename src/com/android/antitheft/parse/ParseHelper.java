@@ -67,7 +67,12 @@ public class ParseHelper {
         String clientKey = PrefUtils.getInstance().getStringPreference(PrefUtils.PARSE_CLIENT_KEY,
                 context.getString(R.string.parse_client_key));
         if (appId != null && appId.length() > 0 && clientKey != null && clientKey.length() > 0) {
-            Parse.initialize(context, appId, clientKey);
+            //Parse.initialize(context, appId, clientKey);
+            Parse.initialize(new Parse.Configuration.Builder(context)
+                    .applicationId(appId)
+                    .clientKey(null)
+                    .server("http://parseserver-cj2ax-env.us-east-1.elasticbeanstalk.com/parse/")
+                    .build());
             ParseInstallation.getCurrentInstallation().saveInBackground();
             AntiTheftNotifier.notifyAntiTheftState(context, true);
         }

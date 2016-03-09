@@ -278,34 +278,6 @@ public class Recorder implements OnCompletionListener, OnErrorListener {
         setState(RECORDING_STATE);
     }
 
-    public void pauseRecording() {
-        if (mRecorder == null) {
-            return;
-        }
-        try {
-            mRecorder.pause();
-        } catch (RuntimeException exception) {
-            setError(INTERNAL_ERROR);
-            Log.e(TAG, "Pause Failed");
-        }
-        mSampleLength = mSampleLength + (System.currentTimeMillis() - mSampleStart);
-        setState(PAUSE_STATE);
-    }
-
-    public void resumeRecording() {
-        if (mRecorder == null) {
-            return;
-        }
-        try {
-            mRecorder.start();
-        } catch (RuntimeException exception) {
-            setError(INTERNAL_ERROR);
-            Log.e(TAG, "Resume Failed");
-        }
-        mSampleStart = System.currentTimeMillis();
-        setState(RECORDING_STATE);
-    }
-
     public void stopRecording() {
         isRecordingStopping = true;
 

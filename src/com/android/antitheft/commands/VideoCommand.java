@@ -13,9 +13,12 @@ public class VideoCommand extends AntiTheftCommand {
     @Override
     public void executeCommand(final String action) {
         reportActionToParse(action);
-        startAntiTheftService(WhosThatService.class.getName(),
-                AntiTheftApplication.getInstance(),
-                WhosThatService.CAMERA_VIDEO);
+        startAntiTheftService(WhosThatService.CAMERA_VIDEO);
+    }
+
+    @Override
+    public Class<?> getServiceClass() {
+        return WhosThatService.class;
     }
 
 }

@@ -1,9 +1,9 @@
 
 package com.android.antitheft.lockscreen;
 
-import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
+import android.os.UserHandle;
 
 import com.android.internal.widget.LockPatternUtils;
 
@@ -18,15 +18,15 @@ public class LockPatternUtilsHelper {
 
     public static void performAdminLock(String password, Context context) {
         LockPatternUtils lpu = new LockPatternUtils(context);
-        lpu.clearLock(false);
-        lpu.saveLockPassword(password,
-                DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC);
+        lpu.clearLock(UserHandle.USER_OWNER);
+        lpu.saveLockPassword(password,null,
+                DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC,UserHandle.USER_OWNER);
         lpu = null;
     }
 
     public static void clearLock(Context context) {
         LockPatternUtils lpu = new LockPatternUtils(context);
-        lpu.clearLock(false);
+        lpu.clearLock(UserHandle.USER_OWNER);
     }
 
     public byte[] getUnlockPassword() {
