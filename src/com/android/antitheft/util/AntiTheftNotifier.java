@@ -15,6 +15,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
+import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.R;
 import com.android.antitheft.activities.MainActivity;
 
@@ -81,6 +82,19 @@ public class AntiTheftNotifier {
                 0,
                 installIntent,
                 PendingIntent.FLAG_UPDATE_CURRENT
-                );
+        );
+    }
+
+    public static void sendNotification(String message) {
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(AntiTheftApplication.getInstance())
+                .setSmallIcon(android.R.drawable.arrow_up_float)
+                .setContentTitle("Ariel")
+                .setContentText(message)
+                .setAutoCancel(true);
+
+        NotificationManager notificationManager =
+                (NotificationManager) AntiTheftApplication.getInstance().getSystemService(Context.NOTIFICATION_SERVICE);
+
+        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
     }
 }

@@ -32,6 +32,7 @@ public class StatusFragment extends Fragment {
 
     private TextView tvLastUpdate;
     private TextView tvLastCommand;
+    private TextView tvDeviceId;
 
     public static StatusFragment createFragment() {
         // final Bundle args = new Bundle();
@@ -47,6 +48,9 @@ public class StatusFragment extends Fragment {
                 container, false);
         tvLastUpdate = (TextView) view.findViewById(R.id.txt_last_update);
         tvLastCommand = (TextView) view.findViewById(R.id.txt_last_command);
+        tvDeviceId = (TextView) view.findViewById(R.id.txt_device_id);
+
+        tvDeviceId.setText(DeviceInfo.getInstance().getUniquePsuedoID());
 
         Gson gson = new Gson();
         String eventJson = PrefUtils.getInstance().getStringPreference(

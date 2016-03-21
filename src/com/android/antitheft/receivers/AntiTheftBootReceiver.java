@@ -10,7 +10,7 @@ import android.util.Log;
 
 public class AntiTheftBootReceiver extends BroadcastReceiver {
 
-    private static final String TAG = "AntiTheftApplication";
+    private static final String TAG = "AntiTheftBootReceiver";
 
     @Override
     public void onReceive(Context context, Intent intent) {

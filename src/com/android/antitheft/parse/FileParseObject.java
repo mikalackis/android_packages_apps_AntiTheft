@@ -8,9 +8,6 @@ import com.parse.ParseFile;
 @ParseClassName("FileParseObject")
 public class FileParseObject extends ParseObject {
 
-    private String imei;
-    private ParseFile file;
-
     public FileParseObject() {
         super();
     }

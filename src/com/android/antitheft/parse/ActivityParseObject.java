@@ -6,9 +6,6 @@ import com.parse.ParseClassName;
 @ParseClassName("ActivityParseObject")
 public class ActivityParseObject extends ParseObject {
     
-    private String action;
-    private String imei;
-    
     public ActivityParseObject(){
         super();
     }

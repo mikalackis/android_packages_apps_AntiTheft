@@ -36,11 +36,16 @@ import com.android.antitheft.receivers.AntiTheftSMSReceiver;
 import com.android.antitheft.security.AntiTheftSecurityHelper;
 import com.android.antitheft.util.AntiTheftNotifier;
 import com.android.antitheft.util.PrefUtils;
+import com.android.antitheft.util.PubNubManager;
 import com.android.internal.telephony.SubscriptionController;
+
+/**
+ * @author mikalackis
+ */
 
 public class AntiTheftApplication extends Application {
 
-    private static final String TAG = "AntiTheftApplication";
+    public static final String TAG = "AntiTheftApplication";
 
     private static AntiTheftApplication mInstance;
 

@@ -10,6 +10,8 @@ public class Config {
 
     public static final boolean DEBUG = true;
 
+    public static final String CONFIG_CHANNEL_UPDATE="config_%s";
+
     public static final String LOCK_SCREEN_PASS = "6969";
 
     public static final String ANTITHEFT_FOLDER = "AntiTheft";
