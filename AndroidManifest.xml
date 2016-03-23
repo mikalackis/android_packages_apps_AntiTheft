@@ -155,9 +155,6 @@
         <meta-data
             android:name="com.parse.APPLICATION_ID"
             android:value="@string/parse_app_id" />
-        <meta-data
-            android:name="com.parse.CLIENT_KEY"
-            android:value="@string/parse_client_key" />
 
         <activity
             android:name="com.android.antitheft.activities.MainActivity"
@@ -179,6 +176,11 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+        </receiver>
+
+        <receiver
+            android:name="com.android.antitheft.receivers.AntiTheftAlarmReceiver"
+            android:enabled="true" >
         </receiver>
 
         <service

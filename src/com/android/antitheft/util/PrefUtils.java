@@ -14,8 +14,6 @@ public class PrefUtils {
     /** keys */
     public static final String ANTITHEFT_ENABLED = "antitheft_enabled";
 
-    public static final String ANTITHEFT_MODE = "antitheft_mode";
-
     public static final String PARSE_APP_ID = "parse_app_id";
 
     public static final String PARSE_CLIENT_KEY = "parse_client_key";

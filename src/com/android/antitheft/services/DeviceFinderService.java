@@ -95,7 +95,7 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
                 Log.e(TAG, "Unable find location settings.", e);
             }
             int state = intent.getIntExtra(SERVICE_PARAM, Config.ANTITHEFT_STATE.NORMAL.getState());
-            if (state == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
+            if (state == Config.ANTITHEFT_STATE.THEFT.getState()) {
                 mConstantReporting = true;
             }
 

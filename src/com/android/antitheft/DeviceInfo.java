@@ -1,14 +1,17 @@
 
 package com.android.antitheft;
 
+import com.android.antitheft.commands.AntiTheftCommandUtil;
 import com.android.antitheft.listeners.AntiTheftPhoneStateListener;
 import com.android.antitheft.parse.DeviceConfiguration;
 import com.android.antitheft.util.ArielAlarmManager;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -77,7 +80,19 @@ public class DeviceInfo {
         Log.i(AntiTheftApplication.TAG, "Device lease start: " + mDeviceConfiguration.getLeaseStartDate());
         Log.i(AntiTheftApplication.TAG, "Device lease end: " + mDeviceConfiguration.getLeaseEndDate());
         Date today = new Date();
-        if(mDeviceConfiguration.getLeaseEndDate().after(today) && mDeviceConfiguration.isExpirationLock()) {
+        ContentResolver resolver = AntiTheftApplication.getInstance().getContentResolver();
+        Settings.Secure.putInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, mDeviceConfiguration.getArielSystemStatus());
+        int arielSystemStatus = Settings.Secure.getInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
+
+        if(arielSystemStatus == 2){
+            // theft mode, device has been stolen or lost
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_THEFT).executeCommand(AntiTheftCommandUtil.LOCKDOWN);
+        }
+        else if(arielSystemStatus == 1){
+            // lease end, lock the device
+            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SCREEN).executeCommand(AntiTheftCommandUtil.SCREEN_LOCK);
+        }
+        else if((arielSystemStatus==0 || arielSystemStatus==1) && mDeviceConfiguration.getLeaseEndDate().after(today)) {
             ArielAlarmManager.getInstance().setAlarm(mDeviceConfiguration.getLeaseEndDate());
         }
     }
@@ -122,6 +137,11 @@ public class DeviceInfo {
         // create a unique identifier
         return new UUID(m_szDevIDShort.hashCode(), serial.hashCode())
                 .toString();
+    }
+
+    public static int getArielSystemStatus(){
+        ContentResolver resolver = AntiTheftApplication.getInstance().getContentResolver();
+        return Settings.Secure.getInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
     }
 
 }

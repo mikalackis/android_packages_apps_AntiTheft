@@ -61,8 +61,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="textMultiLine"
-        android:gravity="left|top"
-        android:text="@string/parse_client_key" />
+        android:gravity="left|top" />
 
     <Button
         android:id="@+id/btn_update_parse_setup"

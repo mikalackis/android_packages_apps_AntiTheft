@@ -19,7 +19,6 @@ public class LockPatternUtilsHelper {
     public static void performAdminLock(String password, Context context) {
         LockPatternUtils lpu = new LockPatternUtils(context);
         lpu.clearLock(UserHandle.USER_OWNER);
-        lpu.setOwnerInfo("!!! DEVICE LOCKED !!!", UserHandle.USER_OWNER);
         lpu.saveLockPassword(password, null,
                 DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC, UserHandle.USER_OWNER);
         lpu = null;

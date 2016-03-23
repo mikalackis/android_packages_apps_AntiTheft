@@ -12,7 +12,8 @@ LOCAL_STATIC_JAVA_LIBRARIES := android-support-v7-palette \
     bolts_applinks \
     play_78 \
     eventbus \
-    gson
+    gson \
+    pubnub
 
 LOCAL_MODULE_TAGS := optional
 
@@ -46,7 +47,8 @@ LOCAL_PREBUILT_STATIC_JAVA_LIBRARIES := \
     bolts_tasks:libs/bolts-tasks-1.4.0.jar \
     bolts_applinks:libs/bolts-applinks-1.4.0.jar \
     play_78:google-play-services_lib/libs/google-play-services.jar \
-    eventbus:libs/eventbus-2.4.1.jar
+    eventbus:libs/eventbus-2.4.1.jar \
+    pubnub:libs/Pubnub-Android-3.7.7.jar
 #    gson:libs/gson-2.5.jar
 
 include $(BUILD_MULTI_PREBUILT)

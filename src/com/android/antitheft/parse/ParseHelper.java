@@ -1,7 +1,9 @@
 
 package com.android.antitheft.parse;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.antitheft.AntiTheftApplication;
@@ -43,9 +45,7 @@ public class ParseHelper {
         activityObject.setAction("AntiTheft online");
         activityObject.setImei(DeviceInfo.getInstance().getIMEI());
         activityObject.saveInBackground(new ParseSaveCallback("AntiTheft online"));
-        int mCurrentState = PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
-                Config.ANTITHEFT_STATE.NORMAL.getState());
-        if (mCurrentState == Config.ANTITHEFT_STATE.LOCKDOWN.getState()) {
+        if (DeviceInfo.getInstance().getArielSystemStatus() == Config.ANTITHEFT_STATE.THEFT.getState()) {
             AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_THEFT).executeCommand(AntiTheftCommandUtil.LOCKDOWN);
         } else {
             AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_LOCATION).executeCommand(AntiTheftCommandUtil.WHERE);

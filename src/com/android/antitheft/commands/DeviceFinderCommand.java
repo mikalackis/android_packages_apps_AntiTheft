@@ -26,7 +26,7 @@ public class DeviceFinderCommand extends AntiTheftCommand {
         }
         else if (action.equals(AntiTheftCommandUtil.TRACK_ME_START)
                 || action.equals(AntiTheftCommandUtil.LOCKDOWN)) {
-            state = Config.ANTITHEFT_STATE.LOCKDOWN.getState();
+            state = Config.ANTITHEFT_STATE.THEFT.getState();
             startAntiTheftService(state);
         }
     }

@@ -1,7 +1,9 @@
 
 package com.android.antitheft;
 
+import android.content.ContentResolver;
 import android.os.Environment;
+import android.provider.Settings;
 
 /**
  * @author mikalackis
@@ -20,8 +22,9 @@ public class Config {
             .toString() + "/" + ANTITHEFT_FOLDER;
     
     public static enum ANTITHEFT_STATE {
-        LOCKDOWN(1),
-        NORMAL(0);
+        NORMAL(0),
+        LOCK(1),
+        THEFT(2);
 
         private int mState;
 

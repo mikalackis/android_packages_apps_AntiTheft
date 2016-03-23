@@ -26,8 +26,8 @@ public class DeviceConfiguration extends ParseObject {
         return getBoolean("masterDevice");
     }
 
-    public boolean isExpirationLock() {
-        return getBoolean("expirationLock");
+    public int getArielSystemStatus() {
+        return getInt("arielSystemStatus");
     }
 
     public String getClientId() {

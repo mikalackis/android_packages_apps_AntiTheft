@@ -56,6 +56,15 @@
         android:textSize="@dimen/status_text_size"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/txt_device_id"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/green"
+        android:textSize="@dimen/status_text_size"
+        android:textStyle="bold" />
+
     <Button
         android:id="@+id/btn_report_status"
         android:layout_width="wrap_content"

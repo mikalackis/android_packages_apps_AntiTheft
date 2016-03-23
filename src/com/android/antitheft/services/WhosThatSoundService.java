@@ -21,6 +21,7 @@ import com.android.antitheft.parse.ParseHelper;
 import com.android.antitheft.util.PrefUtils;
 
 import android.app.Service;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -36,6 +37,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -176,8 +178,7 @@ public class WhosThatSoundService extends AntiTheftService implements
             fileObject.setImei(DeviceInfo.getInstance().getIMEI());
             fileObject.setParseFile(bFile, mRecorder.sampleFile().getName());
             fileObject.saveInBackground(new ParseSaveCallback("Sound"));
-            if (PrefUtils.getInstance().getIntegerPreference(PrefUtils.ANTITHEFT_MODE,
-                    Config.ANTITHEFT_STATE.NORMAL.getState()) == Config.ANTITHEFT_STATE.LOCKDOWN
+            if (DeviceInfo.getInstance().getArielSystemStatus() == Config.ANTITHEFT_STATE.THEFT
                     .getState()) {
                 Thread.sleep(PAUSE_BETWEEN_RECORDINGS);
             }
