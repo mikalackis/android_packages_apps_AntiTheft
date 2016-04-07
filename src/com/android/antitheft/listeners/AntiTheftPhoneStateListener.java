@@ -1,8 +1,6 @@
 
 package com.android.antitheft.listeners;
 
-import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
 import android.telephony.PhoneStateListener;
 import android.telephony.Rlog;
 import android.telephony.ServiceState;

@@ -21,6 +21,9 @@ public class LockPatternUtilsHelper {
         lpu.clearLock(UserHandle.USER_OWNER);
         lpu.saveLockPassword(password, null,
                 DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC, UserHandle.USER_OWNER);
+
+        DevicePolicyManager mDPM = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+        mDPM.lockNow();
         lpu = null;
     }
 

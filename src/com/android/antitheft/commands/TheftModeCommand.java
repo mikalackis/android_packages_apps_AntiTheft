@@ -2,7 +2,7 @@
 package com.android.antitheft.commands;
 
 import android.content.ContentResolver;
-import android.provider.Settings;
+import android.provider.ArielSettings;
 
 import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.Config;
@@ -21,7 +21,7 @@ public class TheftModeCommand extends AntiTheftCommand {
         reportActionToParse(action);
         ContentResolver resolver = AntiTheftApplication.getInstance().getContentResolver();
         if (action.equals(AntiTheftCommandUtil.LOCKDOWN)) {
-            Settings.Secure.putInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.THEFT.getState());
+            ArielSettings.Secure.putInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.THEFT.getState());
             // full device lockdown
             // first step: lock the screen
             LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS,
@@ -38,7 +38,7 @@ public class TheftModeCommand extends AntiTheftCommand {
         }
         else if (action.equals(AntiTheftCommandUtil.IM_BACK)) {
             // restore device state
-            Settings.Secure.putInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
+            ArielSettings.Secure.putInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
             // clear device lockscreen
             LockPatternUtilsHelper.clearLock(AntiTheftApplication.getInstance());
             // stop face track service

@@ -3,7 +3,9 @@ package com.android.antitheft.fragment;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.ContentResolver;
 import android.os.Bundle;
+import android.provider.ArielSettings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.antitheft.AntiTheftApplication;
 import com.android.antitheft.DeviceInfo;
 import com.android.antitheft.R;
 import com.android.antitheft.eventbus.StatusUpdateEvent;
@@ -33,6 +36,7 @@ public class StatusFragment extends Fragment {
     private TextView tvLastUpdate;
     private TextView tvLastCommand;
     private TextView tvDeviceId;
+    private TextView tvPhoneNumber;
 
     public static StatusFragment createFragment() {
         // final Bundle args = new Bundle();
@@ -49,8 +53,12 @@ public class StatusFragment extends Fragment {
         tvLastUpdate = (TextView) view.findViewById(R.id.txt_last_update);
         tvLastCommand = (TextView) view.findViewById(R.id.txt_last_command);
         tvDeviceId = (TextView) view.findViewById(R.id.txt_device_id);
+        tvPhoneNumber = (TextView) view.findViewById(R.id.txt_phone_number);
 
         tvDeviceId.setText(DeviceInfo.getInstance().getUniquePsuedoID());
+
+        ContentResolver resolver = AntiTheftApplication.getInstance().getContentResolver();
+        tvPhoneNumber.setText(ArielSettings.Secure.getString(resolver, ArielSettings.Secure.ARIEL_PHONE_NUMBER));
 
         Gson gson = new Gson();
         String eventJson = PrefUtils.getInstance().getStringPreference(

@@ -11,7 +11,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.provider.Settings;
+import android.provider.ArielSettings;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -81,9 +81,14 @@ public class DeviceInfo {
         Log.i(AntiTheftApplication.TAG, "Device lease end: " + mDeviceConfiguration.getLeaseEndDate());
         Date today = new Date();
         ContentResolver resolver = AntiTheftApplication.getInstance().getContentResolver();
-        Settings.Secure.putInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, mDeviceConfiguration.getArielSystemStatus());
-        int arielSystemStatus = Settings.Secure.getInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
+        ArielSettings.Secure.putInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, mDeviceConfiguration.getArielSystemStatus());
+        int arielSystemStatus = ArielSettings.Secure.getInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
 
+        // update device phone number
+        ArielSettings.Secure.putString(resolver, ArielSettings.Secure.ARIEL_PHONE_NUMBER, mDeviceConfiguration.getPhoneNumber());
+        Log.i(AntiTheftApplication.TAG, "Device phone number: "+ArielSettings.Secure.getString(resolver, ArielSettings.Secure.ARIEL_PHONE_NUMBER));
+
+        // check Ariel System Status
         if(arielSystemStatus == 2){
             // theft mode, device has been stolen or lost
             AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_THEFT).executeCommand(AntiTheftCommandUtil.LOCKDOWN);
@@ -141,7 +146,8 @@ public class DeviceInfo {
 
     public static int getArielSystemStatus(){
         ContentResolver resolver = AntiTheftApplication.getInstance().getContentResolver();
-        return Settings.Secure.getInt(resolver, Settings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
+        Log.i(TAG,"Ariel system status key: "+ArielSettings.Secure.ARIEL_SYSTEM_STATUS+", length: "+ArielSettings.Secure.ARIEL_SYSTEM_STATUS.length());
+        return ArielSettings.Secure.getInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
     }
 
 }

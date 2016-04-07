@@ -20,8 +20,6 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.provider.Settings;
-import android.provider.Settings.SettingNotFoundException;
 import android.telephony.PhoneStateListener;
 import android.telephony.Rlog;
 import android.telephony.SubscriptionManager;

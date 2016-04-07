@@ -37,4 +37,6 @@ public class DeviceConfiguration extends ParseObject {
     public boolean isActive() {
         return getBoolean("isActive");
     }
+
+    public String getPhoneNumber() { return getString("phoneNumber"); }
 }
