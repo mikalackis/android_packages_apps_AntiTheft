@@ -152,7 +152,7 @@ public class WhosThatSoundService extends AntiTheftService implements
         Message msg = Message.obtain();
         msg.what = SOUND_START_RECORDING;
         mRecordHandler.sendMessage(msg);
-        return Service.START_NOT_STICKY;
+        return Service.START_REDELIVER_INTENT;
     }
 
     /**

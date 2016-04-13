@@ -81,25 +81,40 @@ public class DeviceInfo {
         Log.i(AntiTheftApplication.TAG, "Device lease end: " + mDeviceConfiguration.getLeaseEndDate());
         Date today = new Date();
         ContentResolver resolver = AntiTheftApplication.getInstance().getContentResolver();
-        ArielSettings.Secure.putInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, mDeviceConfiguration.getArielSystemStatus());
-        int arielSystemStatus = ArielSettings.Secure.getInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
+        int currentArielSystemStatus = ArielSettings.Secure.getInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, Config.ANTITHEFT_STATE.NORMAL.getState());
+
+        int newArielSystemStatus = mDeviceConfiguration.getArielSystemStatus();
 
         // update device phone number
         ArielSettings.Secure.putString(resolver, ArielSettings.Secure.ARIEL_PHONE_NUMBER, mDeviceConfiguration.getPhoneNumber());
         Log.i(AntiTheftApplication.TAG, "Device phone number: "+ArielSettings.Secure.getString(resolver, ArielSettings.Secure.ARIEL_PHONE_NUMBER));
 
         // check Ariel System Status
-        if(arielSystemStatus == 2){
+        if(newArielSystemStatus == 2){
             // theft mode, device has been stolen or lost
             AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_THEFT).executeCommand(AntiTheftCommandUtil.LOCKDOWN);
         }
-        else if(arielSystemStatus == 1){
-            // lease end, lock the device
-            AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SCREEN).executeCommand(AntiTheftCommandUtil.SCREEN_LOCK);
+        else if(newArielSystemStatus == 1){
+            // if current status is normal, then we need to lock
+            if(currentArielSystemStatus==0) {
+                // lease end, lock the device
+                AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SCREEN).executeCommand(AntiTheftCommandUtil.SCREEN_LOCK);
+            }
         }
-        else if((arielSystemStatus==0 || arielSystemStatus==1) && mDeviceConfiguration.getLeaseEndDate().after(today)) {
-            ArielAlarmManager.getInstance().setAlarm(mDeviceConfiguration.getLeaseEndDate());
+        else if(newArielSystemStatus==0) {
+            if(mDeviceConfiguration.getLeaseEndDate().after(today)) {
+                ArielAlarmManager.getInstance().setAlarm(mDeviceConfiguration.getLeaseEndDate());
+            }
+            else{
+                ArielAlarmManager.getInstance().cancelAlarm();
+            }
+            if(currentArielSystemStatus == 1 || currentArielSystemStatus == 2){
+                // clear the lockscreen
+                AntiTheftCommandUtil.getCommandByKey(AntiTheftCommandUtil.KEY_SCREEN).executeCommand(AntiTheftCommandUtil.SCREEN_REMOVE_LOCK);
+            }
         }
+
+        ArielSettings.Secure.putInt(resolver, ArielSettings.Secure.ARIEL_SYSTEM_STATUS, newArielSystemStatus);
     }
 
     public String getUniquePsuedoID() {

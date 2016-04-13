@@ -33,6 +33,7 @@ public class AntiTheftCommandUtil {
     public static final String LOCKDOWN = "byebye"; // full device lockdown
     public static final String IM_BACK = "leboss"; // full device unlock
     public static final String SCREEN_LOCK = "lockscreen"; // lock my screen with pwd
+    public static final String SCREEN_REMOVE_LOCK = "remove_lock";
     public static final String ROOT_ENABLED = "root_enabled";
     public static final String ROOT_DISABLED = "root_disabled";
     
@@ -50,7 +51,7 @@ public class AntiTheftCommandUtil {
                 LOCKDOWN, IM_BACK, ROOT_DISABLED, ROOT_ENABLED
         }, "Theft mode"));
         mCommandMap.put(KEY_SCREEN, new ScreenLockCommand(KEY_SCREEN, new String[] {
-            SCREEN_LOCK
+            SCREEN_LOCK, SCREEN_REMOVE_LOCK
         }, "Locks screen with predifined pin"));
         mCommandMap.put(KEY_SOUND, new TalkCommand(KEY_SOUND, new String[] {
                 TALK, TALK_STOP

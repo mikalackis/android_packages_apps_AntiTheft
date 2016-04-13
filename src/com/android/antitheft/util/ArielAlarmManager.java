@@ -32,16 +32,22 @@ public class ArielAlarmManager {
         return mInstance;
     }
 
+    private PendingIntent getPendingIntent(){
+        if(mPendingIntent==null) {
+            Intent intent = new Intent(AntiTheftApplication.getInstance(), AntiTheftAlarmReceiver.class);
+            mPendingIntent = PendingIntent.getBroadcast(AntiTheftApplication.getInstance(), 0, intent, 0);
+        }
+        return mPendingIntent;
+    }
+
     public void setAlarm(final Date when){
-        Intent intent = new Intent(AntiTheftApplication.getInstance(), AntiTheftAlarmReceiver.class);
-        mPendingIntent = PendingIntent.getBroadcast(AntiTheftApplication.getInstance(), 0, intent, 0);
-        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,when.getTime(),mPendingIntent);
+        cancelAlarm();
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP,when.getTime(),getPendingIntent());
         AntiTheftNotifier.sendNotification("Ariel lease ends at: "+when);
     }
 
     public void cancelAlarm(){
-        mAlarmManager.cancel(mPendingIntent);
+        mAlarmManager.cancel(getPendingIntent());
     }
-
 
 }

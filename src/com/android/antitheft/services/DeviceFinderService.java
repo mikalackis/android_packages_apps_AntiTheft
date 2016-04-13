@@ -106,7 +106,7 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
             restartLocationUpdates();
         }
 
-        return START_STICKY;
+        return START_REDELIVER_INTENT;
     }
 
     /**

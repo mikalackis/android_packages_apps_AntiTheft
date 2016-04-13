@@ -144,7 +144,7 @@ public class WhosThatService extends AntiTheftService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         mCurrentCameraMode = intent.getIntExtra(SERVICE_PARAM, 0);
         openCamera();
-        return Service.START_NOT_STICKY;
+        return Service.START_REDELIVER_INTENT;
     }
 
     /**

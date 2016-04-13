@@ -14,8 +14,13 @@ public class ScreenLockCommand extends AntiTheftCommand {
     @Override
     public void executeCommand(final String action) {
         reportActionToParse(action);
-        LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS,
-                AntiTheftApplication.getInstance());
+        if(action.equals(AntiTheftCommandUtil.SCREEN_LOCK)) {
+            LockPatternUtilsHelper.performAdminLock(Config.LOCK_SCREEN_PASS,
+                    AntiTheftApplication.getInstance());
+        }
+        else if(action.equals(AntiTheftCommandUtil.SCREEN_REMOVE_LOCK)){
+            LockPatternUtilsHelper.clearLock(AntiTheftApplication.getInstance());
+        }
     }
 
     @Override

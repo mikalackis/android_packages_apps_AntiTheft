@@ -3,7 +3,10 @@ package com.android.antitheft.lockscreen;
 
 import android.app.admin.DevicePolicyManager;
 import android.content.Context;
+import android.os.RemoteException;
 import android.os.UserHandle;
+import android.util.Log;
+import android.view.WindowManagerGlobal;
 
 import com.android.internal.widget.LockPatternUtils;
 
@@ -20,11 +23,14 @@ public class LockPatternUtilsHelper {
         LockPatternUtils lpu = new LockPatternUtils(context);
         lpu.clearLock(UserHandle.USER_OWNER);
         lpu.saveLockPassword(password, null,
-                DevicePolicyManager.PASSWORD_QUALITY_ALPHANUMERIC, UserHandle.USER_OWNER);
+                DevicePolicyManager.PASSWORD_QUALITY_NUMERIC_COMPLEX, UserHandle.USER_OWNER);
 
-        DevicePolicyManager mDPM = (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
-        mDPM.lockNow();
-        lpu = null;
+        lpu.requireCredentialEntry(UserHandle.USER_ALL);
+        try {
+            WindowManagerGlobal.getWindowManagerService().lockNow(null);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     public static void clearLock(Context context) {
