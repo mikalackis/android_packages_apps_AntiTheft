@@ -33,7 +33,7 @@
     <string name="scramble_power_title">Scramble power button option</string>	
     
     <!-- status fragment -->
-    <string name="button_report_status">Report status</string>	
+    <string name="button_fetch_config">Fetch config</string>
     <string name="last_update">Last server update:</string>
     <string name="last_command">Last command performed:</string>
     		

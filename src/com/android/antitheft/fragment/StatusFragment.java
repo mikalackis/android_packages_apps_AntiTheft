@@ -68,15 +68,16 @@ public class StatusFragment extends Fragment {
             setupStatusText(event);
         }
         
-        Button btnReportStatus = (Button) view.findViewById(R.id.btn_report_status);
-        btnReportStatus.setOnClickListener(new OnClickListener() {
+        Button btnFetchConfig = (Button) view.findViewById(R.id.btn_fetch_config);
+        btnFetchConfig.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                ActivityParseObject activityObject = new ActivityParseObject();
-                activityObject.setAction("AntiTheft online");
-                activityObject.setImei(DeviceInfo.getInstance().getIMEI());
-                activityObject.saveEventually(new ParseSaveCallback("AntiTheft online"));
+//                ActivityParseObject activityObject = new ActivityParseObject();
+//                activityObject.setAction("AntiTheft online");
+//                activityObject.setImei(DeviceInfo.getInstance().getIMEI());
+//                activityObject.saveEventually(new ParseSaveCallback("AntiTheft online"));
+                ParseHelper.getConfigFromServer();
             }
         });
         return view;

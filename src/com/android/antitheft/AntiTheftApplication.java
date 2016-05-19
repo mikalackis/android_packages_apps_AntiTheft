@@ -16,15 +16,21 @@
 
 package com.android.antitheft;
 
+import android.app.ActivityManager;
 import android.app.Application;
 import android.content.ComponentName;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.ContentObserver;
+import android.os.Handler;
+import android.provider.ArielSettings;
+import android.provider.Settings;
 import android.telephony.PhoneStateListener;
 import android.telephony.Rlog;
 import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.util.Slog;
 
 import com.android.antitheft.commands.AntiTheftCommandUtil;
 import com.android.antitheft.listeners.AntiTheftPhoneStateListener;
@@ -60,6 +66,10 @@ public class AntiTheftApplication extends Application {
         PrefUtils.init(this);
         ParseHelper.parseInit(this);
         DeviceInfo.getInstance().registerServiceStateListener();
+
+        getContentResolver().registerContentObserver(
+                ArielSettings.Secure.getUriFor(ArielSettings.Secure.ARIEL_SYSTEM_STATUS),
+                false, mSettingObserver, ActivityManager.getCurrentUser());
     }
     
     @Override
@@ -91,5 +101,13 @@ public class AntiTheftApplication extends Application {
         final TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
         tm.listen(new AntiTheftPhoneStateListener(), PhoneStateListener.LISTEN_SERVICE_STATE);
     }
+
+    private final ContentObserver mSettingObserver = new ContentObserver(new Handler()) {
+        public void onChange(boolean selfChange, android.net.Uri uri, int userId) {
+            int arielSystemStatus = ArielSettings.Secure.getInt(getContentResolver(),
+                    ArielSettings.Secure.ARIEL_SYSTEM_STATUS, ArielSettings.Secure.ARIEL_SYSTEM_STATUS_NORMAL);
+            Slog.i(TAG, "ARIEL SYSTEM STATUS: "+arielSystemStatus);
+        }
+    };
 
 }

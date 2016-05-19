@@ -129,6 +129,7 @@ public class ParseHelper {
                 .enableLocalDataStore()
                 .build());
         ParseInstallation.getCurrentInstallation().saveInBackground();
+
     }
 
 }

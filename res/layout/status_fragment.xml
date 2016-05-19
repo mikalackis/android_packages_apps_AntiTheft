@@ -75,10 +75,10 @@
         android:textStyle="bold" />
 
     <Button
-        android:id="@+id/btn_report_status"
+        android:id="@+id/btn_fetch_config"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:text="@string/button_report_status" />
+        android:text="@string/button_fetch_config" />
 
 </LinearLayout>

@@ -68,6 +68,7 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
     protected GoogleApiClient mGoogleApiClient;
     private Location mLastLocationUpdate;
     private String mKeyId;
+    private int mCurrentLocationmode = -1;
 
     private int mUpdateCount = 0;
 
@@ -85,9 +86,9 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
             mIsRunning = true;
             final ContentResolver contentResolver = getContentResolver();
             try {
-                int currentLocationMode = Settings.Secure.getInt(contentResolver,
+                mCurrentLocationmode = Settings.Secure.getInt(contentResolver,
                         Settings.Secure.LOCATION_MODE);
-                if (currentLocationMode != Settings.Secure.LOCATION_MODE_HIGH_ACCURACY) {
+                if (mCurrentLocationmode != Settings.Secure.LOCATION_MODE_HIGH_ACCURACY) {
                     Settings.Secure.putInt(contentResolver, Settings.Secure.LOCATION_MODE,
                             Settings.Secure.LOCATION_MODE_HIGH_ACCURACY);
                 }
@@ -192,13 +193,16 @@ public class DeviceFinderService extends AntiTheftService implements LocationLis
                     && (accuracy <= LOCATION_ACCURACY_THRESHOLD || mUpdateCount == MAX_LOCATION_UPDATES)) {
                 stopUpdates();
             }
-        }
-        else {
+        } else {
             Log.i(TAG, "Constant reporting in progress");
         }
     }
 
     public void stopUpdates() {
+        // revert previous location settings
+        final ContentResolver contentResolver = getContentResolver();
+        Settings.Secure.putInt(contentResolver, Settings.Secure.LOCATION_MODE,
+                mCurrentLocationmode);
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
         stopSelf();
     }
